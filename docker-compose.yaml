@@ -14,9 +14,9 @@ services:
       - ADMIN_PASSWORD=123123123aA!
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=testdb
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
+      - DB_NAME=antifraud
+      - DB_USER=admin
+      - DB_PASSWORD=skebob
       - RANDOM_SECRET=Jf/ZpZSxfMWnOexP48Mp1z200jd+8BVZ7ws6Uw5Jp/w=
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -37,9 +37,9 @@ services:
       - API_TOKEN=test-token
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=testdb
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
+      - DB_NAME=antifraud
+      - DB_USER=admin
+      - DB_PASSWORD=skebob
       - RANDOM_SECRET=Jf/ZpZSxfMWnOexP48Mp1z200jd+8BVZ7ws6Uw5Jp/w=
       - REDIS_HOST=redis
       - REDIS_PORT=6379
