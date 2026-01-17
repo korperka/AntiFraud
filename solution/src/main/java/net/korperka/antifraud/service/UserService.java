@@ -1,6 +1,7 @@
 package net.korperka.antifraud.service;
 
 import lombok.RequiredArgsConstructor;
+import net.korperka.antifraud.dto.response.UserListResponse;
 import net.korperka.antifraud.dto.response.UserResponseDTO;
 import net.korperka.antifraud.entity.User;
 import net.korperka.antifraud.mapper.UserMapper;
@@ -35,12 +36,12 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public List<UserResponseDTO> getAllUsers(int page, int size) {
+    public UserListResponse getAllUsers(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
         Page<User> userPage = userRepository.findAll(pageable);
 
-        return userPage.getContent().stream()
-                .map(userMapper::toDto)
-                .toList();
+        List<UserResponseDTO> users = userPage.getContent().stream().map(userMapper::toDto).toList();
+
+        return new UserListResponse(users, users.size(), page, getAllUsers().size());
     }
 }
