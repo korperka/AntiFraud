@@ -6,7 +6,7 @@ import net.korperka.antifraud.enums.Gender;
 import net.korperka.antifraud.enums.MaritalStatus;
 
 @Data
-public class UserDTO {
+public class RegisterRequest {
     @NotBlank @Email
     @Size(max = 254)
     private String email;

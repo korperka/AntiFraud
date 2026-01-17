@@ -2,7 +2,9 @@ package net.korperka.antifraud.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import net.korperka.antifraud.dto.response.APIErrorResponse;
+import net.korperka.antifraud.exception.InvalidCredentialsException;
 import net.korperka.antifraud.exception.UserAlreadyExistsException;
+import net.korperka.antifraud.exception.UserDeactivatedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -18,9 +20,34 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(UserDeactivatedException.class)
+    public ResponseEntity<APIErrorResponse> handleUserInactive(UserDeactivatedException ex, HttpServletRequest request) {
+        APIErrorResponse response = APIErrorResponse.builder()
+                .code("USER_INACTIVE")
+                .message("Пользователь деактивирован")
+                .traceId(UUID.randomUUID().toString())
+                .timestamp(Instant.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.LOCKED).body(response);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<APIErrorResponse> handleUnauthorized(InvalidCredentialsException ex, HttpServletRequest request) {
+        APIErrorResponse response = APIErrorResponse.builder()
+                .code("UNAUTHORIZED")
+                .message("Токен отсутствует или невалиден")
+                .traceId(UUID.randomUUID().toString())
+                .timestamp(Instant.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<APIErrorResponse> handleBadRequest(HttpMessageNotReadableException ex, HttpServletRequest request) {
-
         APIErrorResponse response = APIErrorResponse.builder()
                 .code("BAD_REQUEST")
                 .message("Невалидный JSON")
