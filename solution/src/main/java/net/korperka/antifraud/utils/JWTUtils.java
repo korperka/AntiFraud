@@ -1,6 +1,5 @@
 package net.korperka.antifraud.utils;
 
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import net.korperka.antifraud.entity.User;
@@ -18,6 +17,15 @@ public class JWTUtils {
 
     @Value("${jwt.lifetime}")
     private long jwtLifetime;
+
+    public String getRole(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("role", String.class);
+    }
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));

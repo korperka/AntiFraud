@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.nio.file.AccessDeniedException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,20 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<APIErrorResponse> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+
+        APIErrorResponse response = APIErrorResponse.builder()
+                .code("FORBIDDEN")
+                .message("Недостаточно прав (нужна другая роль)")
+                .traceId(UUID.randomUUID().toString())
+                .timestamp(Instant.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
     @ExceptionHandler(UserDeactivatedException.class)
     public ResponseEntity<APIErrorResponse> handleUserInactive(UserDeactivatedException ex, HttpServletRequest request) {
         APIErrorResponse response = APIErrorResponse.builder()
