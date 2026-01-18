@@ -49,7 +49,7 @@ public class AuthService {
         User user = userMapper.toEntity(request);
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(userRepository.count() == 0 ? Role.ADMIN : Role.USER);
+        user.setRole(Role.USER);
         user.setActive(true);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
