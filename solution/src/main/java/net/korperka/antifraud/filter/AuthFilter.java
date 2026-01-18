@@ -38,15 +38,13 @@ public class AuthFilter extends OncePerRequestFilter {
         }
 
         String token = header.substring(BEARER_PREFIX.length());
-        String userId = jwtUtils.getUserIDFromToken(token);
 
-        if(!jwtUtils.validateToken(token) ||
-                StringUtils.isEmpty(userId) ||
-                SecurityContextHolder.getContext().getAuthentication() != null) {
+        if(!jwtUtils.validateToken(token) || SecurityContextHolder.getContext().getAuthentication() != null) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        String userId = jwtUtils.getUserIDFromToken(token);
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 userId,
                 null,

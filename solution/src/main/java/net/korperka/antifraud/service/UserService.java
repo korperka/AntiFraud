@@ -41,31 +41,38 @@ public class UserService {
         User source = userRepository.findById(sourceId).orElseThrow(UserNotFoundException::new);
         User target = userRepository.findById(targetId).orElseThrow(UserNotFoundException::new);
 
-        if(source.getRole() == Role.USER && sourceId != targetId) throw new AccessDeniedException("Недостаточно прав для выполнения операции");
+        if(source.getRole() != Role.ADMIN && !sourceId.equals(targetId)) throw new AccessDeniedException("Недостаточно прав для выполнения операции");
 
         return userMapper.toDto(target);
     }
 
-    public UserResponseDTO updateUser(UUID id, UserUpdateRequest request) {
-        User user = userRepository.findById(id).orElseThrow(InvalidCredentialsException::new);
+    public UserResponseDTO updateUser(UUID sourceId, UUID targetId, UserUpdateRequest request) {
+        User target = userRepository.findById(targetId).orElseThrow(UserNotFoundException::new);
+        User source = userRepository.findById(sourceId).orElseThrow(UserNotFoundException::new);
 
-        user.setFullName(request.getFullName());
-        user.setAge(request.getAge());
-        user.setRegion(request.getRegion());
-        user.setGender(request.getGender());
-        user.setMaritalStatus(request.getMaritalStatus());
-        user.setUpdatedAt(LocalDateTime.now());
+        if(source.getRole() != Role.ADMIN && !sourceId.equals(targetId)) throw new AccessDeniedException("Недостаточно прав для выполнения операции");
+
+        target.setFullName(request.getFullName());
+        target.setAge(request.getAge());
+        target.setRegion(request.getRegion());
+        target.setGender(request.getGender());
+        target.setMaritalStatus(request.getMaritalStatus());
+        target.setUpdatedAt(LocalDateTime.now());
 
         if(request.getRole() != null || request.getActive() != null) {
-            if(user.getRole() != Role.ADMIN) throw new AccessDeniedException("Недостаточно прав для выполнения операции");
+            if(source.getRole() != Role.ADMIN) throw new AccessDeniedException("Недостаточно прав для выполнения операции");
 
-            user.setRole(request.getRole());
-            user.setActive(request.getActive());
+            target.setRole(request.getRole());
+            target.setActive(request.getActive());
         }
 
-        User savedEntity = userRepository.save(user);
+        User savedEntity = userRepository.save(target);
 
         return userMapper.toDto(savedEntity);
+    }
+
+    public UserResponseDTO updateUser(UUID id, UserUpdateRequest request) {
+        return updateUser(id, id, request);
     }
 
     public List<User> getAllUsers() {

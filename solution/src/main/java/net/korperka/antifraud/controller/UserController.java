@@ -8,6 +8,7 @@ import net.korperka.antifraud.dto.request.UserCreateRequest;
 import net.korperka.antifraud.dto.request.UserUpdateRequest;
 import net.korperka.antifraud.dto.response.UserListResponse;
 import net.korperka.antifraud.dto.response.UserResponseDTO;
+import net.korperka.antifraud.exception.UserNotFoundException;
 import net.korperka.antifraud.service.AuthService;
 import net.korperka.antifraud.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +32,6 @@ public class UserController {
         return ResponseEntity.status(201).body(userService.createUser(request));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> getUserById(@RequestParam UUID id, Principal principal) {
-        String userIdString = principal.getName();
-        UUID userId = UUID.fromString(userIdString);
-
-        return ResponseEntity.ok(userService.getUserById(userId, id));
-    }
-
     @PutMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponseDTO> updateCurrentUser(@Valid @RequestBody UserUpdateRequest request, Principal principal) {
@@ -48,13 +41,33 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(userId, request));
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserResponseDTO> updateUser(@RequestParam UUID id, @Valid @RequestBody UserUpdateRequest request, Principal principal) {
+        String userIdString = principal.getName();
+        UUID userId = UUID.fromString(userIdString);
+
+        return ResponseEntity.ok(userService.updateUser(userId, id, request));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> getUserById(@RequestParam UUID id, Principal principal) {
+        String userIdString = principal.getName();
+        UUID userId = UUID.fromString(userIdString);
+
+        return ResponseEntity.ok(userService.getUserById(userId, id));
+    }
+
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponseDTO> getCurrentUser(Principal principal) {
         String userIdString = principal.getName();
         UUID userId = UUID.fromString(userIdString);
+        UserResponseDTO user = userService.getUserById(userId);
 
-        return ResponseEntity.ok(userService.getUserById(userId));
+        if(user == null) throw new UserNotFoundException();
+
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping
