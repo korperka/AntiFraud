@@ -43,7 +43,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserResponseDTO> updateUser(@RequestParam UUID id, @Valid @RequestBody UserUpdateRequest request, Principal principal) {
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable UUID id, @Valid @RequestBody UserUpdateRequest request, Principal principal) {
         String userIdString = principal.getName();
         UUID userId = UUID.fromString(userIdString);
 
@@ -51,7 +51,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> getUserById(@RequestParam UUID id, Principal principal) {
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable UUID id, Principal principal) {
         String userIdString = principal.getName();
         UUID userId = UUID.fromString(userIdString);
 
