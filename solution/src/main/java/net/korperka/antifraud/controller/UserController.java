@@ -31,6 +31,14 @@ public class UserController {
         return ResponseEntity.status(201).body(userService.createUser(request));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> getUserById(@RequestParam UUID id, Principal principal) {
+        String userIdString = principal.getName();
+        UUID userId = UUID.fromString(userIdString);
+
+        return ResponseEntity.ok(userService.getUserById(userId, id));
+    }
+
     @PutMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponseDTO> updateCurrentUser(@Valid @RequestBody UserUpdateRequest request, Principal principal) {

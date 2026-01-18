@@ -6,6 +6,7 @@ import net.korperka.antifraud.dto.response.APIErrorResponse;
 import net.korperka.antifraud.exception.InvalidCredentialsException;
 import net.korperka.antifraud.exception.UserAlreadyExistsException;
 import net.korperka.antifraud.exception.UserDeactivatedException;
+import net.korperka.antifraud.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -35,6 +36,20 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<APIErrorResponse> handleAccessDenied(UserNotFoundException ex, HttpServletRequest request) {
+
+        APIErrorResponse response = APIErrorResponse.builder()
+                .code("NOT_FOUND")
+                .message("Пользователь не найден")
+                .traceId(UUID.randomUUID().toString())
+                .timestamp(Instant.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(UserDeactivatedException.class)

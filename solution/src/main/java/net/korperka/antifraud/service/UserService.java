@@ -9,6 +9,7 @@ import net.korperka.antifraud.entity.User;
 import net.korperka.antifraud.enums.Role;
 import net.korperka.antifraud.exception.InvalidCredentialsException;
 import net.korperka.antifraud.exception.UserAlreadyExistsException;
+import net.korperka.antifraud.exception.UserNotFoundException;
 import net.korperka.antifraud.mapper.UserMapper;
 import net.korperka.antifraud.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,15 @@ public class UserService {
         User user = userRepository.findById(id).orElseThrow(InvalidCredentialsException::new);
 
         return userMapper.toDto(user);
+    }
+
+    public UserResponseDTO getUserById(UUID sourceId, UUID targetId) {
+        User source = userRepository.findById(sourceId).orElseThrow(UserNotFoundException::new);
+        User target = userRepository.findById(targetId).orElseThrow(UserNotFoundException::new);
+
+        if(source.getRole() == Role.USER && sourceId != targetId) throw new AccessDeniedException("Недостаточно прав для выполнения операции");
+
+        return userMapper.toDto(target);
     }
 
     public UserResponseDTO updateUser(UUID id, UserUpdateRequest request) {
