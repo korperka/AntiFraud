@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 public class UserListResponse {
     private List<UserResponseDTO> items;
-    private Integer size;
-    private Integer page;
     private Integer total;
+    private Integer page;
+    private Integer size;
 }
