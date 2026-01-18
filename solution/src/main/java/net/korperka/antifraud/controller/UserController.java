@@ -1,31 +1,38 @@
 package net.korperka.antifraud.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
+import net.korperka.antifraud.dto.request.UserCreateRequest;
 import net.korperka.antifraud.dto.response.UserListResponse;
 import net.korperka.antifraud.dto.response.UserResponseDTO;
+import net.korperka.antifraud.service.AuthService;
 import net.korperka.antifraud.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.UUID;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
 @Tag(name = "Users", description = "Управление пользователями и профилями")
 public class UserController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping
+    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserCreateRequest request) {
+        return ResponseEntity.status(201).body(userService.createUser(request));
+    }
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserResponseDTO> getMe(Principal principal) {
+    public ResponseEntity<UserResponseDTO> getCurrentUser(Principal principal) {
         String userIdString = principal.getName();
         UUID userId = UUID.fromString(userIdString);
 

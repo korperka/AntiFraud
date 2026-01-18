@@ -1,6 +1,7 @@
 package net.korperka.antifraud.mapper;
 
 import net.korperka.antifraud.dto.request.RegisterRequest;
+import net.korperka.antifraud.dto.request.UserCreateRequest;
 import net.korperka.antifraud.dto.response.UserResponseDTO;
 import net.korperka.antifraud.entity.User;
 import org.mapstruct.Mapper;
@@ -17,4 +18,8 @@ public interface UserMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     User toEntity(RegisterRequest dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    User toEntity(UserCreateRequest dto);
 }
