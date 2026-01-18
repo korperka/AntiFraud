@@ -2,18 +2,20 @@ package net.korperka.antifraud.service;
 
 import lombok.RequiredArgsConstructor;
 import net.korperka.antifraud.dto.request.UserCreateRequest;
+import net.korperka.antifraud.dto.request.UserUpdateRequest;
 import net.korperka.antifraud.dto.response.UserListResponse;
 import net.korperka.antifraud.dto.response.UserResponseDTO;
 import net.korperka.antifraud.entity.User;
+import net.korperka.antifraud.enums.Role;
 import net.korperka.antifraud.exception.InvalidCredentialsException;
 import net.korperka.antifraud.exception.UserAlreadyExistsException;
 import net.korperka.antifraud.mapper.UserMapper;
 import net.korperka.antifraud.repository.UserRepository;
-import net.korperka.antifraud.utils.JWTUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,13 +29,33 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
-    private final JWTUtils jwtUtils;
 
     public UserResponseDTO getUserById(UUID id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(InvalidCredentialsException::new);
+        User user = userRepository.findById(id).orElseThrow(InvalidCredentialsException::new);
 
         return userMapper.toDto(user);
+    }
+
+    public UserResponseDTO updateUser(UUID id, UserUpdateRequest request) {
+        User user = userRepository.findById(id).orElseThrow(InvalidCredentialsException::new);
+
+        user.setFullName(request.getFullName());
+        user.setAge(request.getAge());
+        user.setRegion(request.getRegion());
+        user.setGender(request.getGender());
+        user.setMaritalStatus(request.getMaritalStatus());
+        user.setUpdatedAt(LocalDateTime.now());
+
+        if(request.getRole() != null || request.getActive() != null) {
+            if(user.getRole() != Role.ADMIN) throw new AccessDeniedException("Недостаточно прав для выполнения операции");
+
+            user.setRole(request.getRole());
+            user.setActive(request.getActive());
+        }
+
+        User savedEntity = userRepository.save(user);
+
+        return userMapper.toDto(savedEntity);
     }
 
     public List<User> getAllUsers() {

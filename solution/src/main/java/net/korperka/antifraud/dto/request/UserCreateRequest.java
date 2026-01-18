@@ -11,6 +11,5 @@ import net.korperka.antifraud.enums.Role;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class UserCreateRequest extends RegisterRequest {
-    @Enumerated(EnumType.STRING)
     private Role role;
 }

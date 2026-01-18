@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import net.korperka.antifraud.dto.request.UserCreateRequest;
+import net.korperka.antifraud.dto.request.UserUpdateRequest;
 import net.korperka.antifraud.dto.response.UserListResponse;
 import net.korperka.antifraud.dto.response.UserResponseDTO;
 import net.korperka.antifraud.service.AuthService;
@@ -28,6 +29,15 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserCreateRequest request) {
         return ResponseEntity.status(201).body(userService.createUser(request));
+    }
+
+    @PutMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserResponseDTO> updateCurrentUser(@Valid @RequestBody UserUpdateRequest request, Principal principal) {
+        String userIdString = principal.getName();
+        UUID userId = UUID.fromString(userIdString);
+
+        return ResponseEntity.ok(userService.updateUser(userId, request));
     }
 
     @GetMapping("/me")
