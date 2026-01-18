@@ -1,6 +1,7 @@
 package net.korperka.antifraud.config;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import net.korperka.antifraud.dto.response.APIErrorResponse;
 import net.korperka.antifraud.exception.InvalidCredentialsException;
 import net.korperka.antifraud.exception.UserAlreadyExistsException;
@@ -11,6 +12,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import java.nio.file.AccessDeniedException;
 import java.time.Instant;
@@ -73,6 +75,50 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<APIErrorResponse> handleMethodValidation(HandlerMethodValidationException ex, HttpServletRequest request) {
+        List<APIErrorResponse.ValidationError> errors = ex.getAllValidationResults().stream()
+                .map(result -> APIErrorResponse.ValidationError.builder()
+                        .field(result.getMethodParameter().getParameterName())
+                        .issue(result.getResolvableErrors().get(0).getDefaultMessage())
+                        .rejectedValue(result.getArgument())
+                        .build())
+                .toList();
+
+        APIErrorResponse response = APIErrorResponse.builder()
+                .code("VALIDATION_FAILED")
+                .message("Ошибка валидации параметров")
+                .traceId(UUID.randomUUID().toString())
+                .timestamp(Instant.now())
+                .path(request.getRequestURI())
+                .fieldErrors(errors)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<APIErrorResponse> handleParamsError(ConstraintViolationException ex, HttpServletRequest request) {
+        List<APIErrorResponse.ValidationError> errors = ex.getConstraintViolations().stream()
+                .map(violation -> APIErrorResponse.ValidationError.builder()
+                        .field(violation.getPropertyPath().toString())
+                        .issue(violation.getMessage())
+                        .rejectedValue(violation.getInvalidValue())
+                        .build())
+                .toList();
+
+        APIErrorResponse response = APIErrorResponse.builder()
+                .code("VALIDATION_FAILED")
+                .message("Ошибка валидации параметров")
+                .traceId(UUID.randomUUID().toString())
+                .timestamp(Instant.now())
+                .path(request.getRequestURI())
+                .fieldErrors(errors)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
