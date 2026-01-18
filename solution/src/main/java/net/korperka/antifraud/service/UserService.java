@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.korperka.antifraud.dto.response.UserListResponse;
 import net.korperka.antifraud.dto.response.UserResponseDTO;
 import net.korperka.antifraud.entity.User;
+import net.korperka.antifraud.exception.InvalidCredentialsException;
 import net.korperka.antifraud.mapper.UserMapper;
 import net.korperka.antifraud.repository.UserRepository;
 import net.korperka.antifraud.utils.JWTUtils;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,13 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final JWTUtils jwtUtils;
+
+    public UserResponseDTO getUserById(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(InvalidCredentialsException::new);
+
+        return userMapper.toDto(user);
+    }
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
