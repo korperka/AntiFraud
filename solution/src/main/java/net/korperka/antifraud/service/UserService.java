@@ -42,6 +42,6 @@ public class UserService {
 
         List<UserResponseDTO> users = userPage.getContent().stream().map(userMapper::toDto).toList();
 
-        return new UserListResponse(users, users.size(), page, getAllUsers().size());
+        return new UserListResponse(users, (int) userPage.getTotalElements(), userPage.getNumber(), userPage.getSize());
     }
 }
