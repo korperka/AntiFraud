@@ -41,6 +41,13 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(userId, request));
     }
 
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserResponseDTO> deactivateUser(@PathVariable UUID id) {
+        userService.deactivateUser(id);
+        return ResponseEntity.status(204).build();
+    }
+
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponseDTO> updateUser(@PathVariable UUID id, @Valid @RequestBody UserUpdateRequest request, Principal principal) {

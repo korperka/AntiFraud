@@ -37,6 +37,13 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
+    public void deactivateUser(UUID id) {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        user.setActive(false);
+
+        userRepository.save(user);
+    }
+
     public UserResponseDTO getUserById(UUID sourceId, UUID targetId) {
         User source = userRepository.findById(sourceId).orElseThrow(UserNotFoundException::new);
         User target = userRepository.findById(targetId).orElseThrow(UserNotFoundException::new);
