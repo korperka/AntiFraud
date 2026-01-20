@@ -8,10 +8,8 @@ import net.korperka.antifraud.dto.request.UserCreateRequest;
 import net.korperka.antifraud.dto.request.UserUpdateRequest;
 import net.korperka.antifraud.dto.response.UserListResponse;
 import net.korperka.antifraud.dto.response.UserResponseDTO;
-import net.korperka.antifraud.exception.UserNotFoundException;
-import net.korperka.antifraud.service.AuthService;
+import net.korperka.antifraud.exception.NotFoundException;
 import net.korperka.antifraud.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -72,7 +70,7 @@ public class UserController {
         UUID userId = UUID.fromString(userIdString);
         UserResponseDTO user = userService.getUserById(userId);
 
-        if(user == null) throw new UserNotFoundException();
+        if(user == null) throw new NotFoundException();
 
         return ResponseEntity.ok(user);
     }

@@ -2,7 +2,6 @@ package net.korperka.antifraud.mapper;
 
 import net.korperka.antifraud.dto.request.RegisterRequest;
 import net.korperka.antifraud.dto.request.UserCreateRequest;
-import net.korperka.antifraud.dto.request.UserUpdateRequest;
 import net.korperka.antifraud.dto.response.UserResponseDTO;
 import net.korperka.antifraud.entity.User;
 import org.mapstruct.Mapper;

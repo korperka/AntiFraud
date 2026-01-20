@@ -35,8 +35,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<APIErrorResponse> handleAccessDenied(UserNotFoundException ex, HttpServletRequest request) {
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<APIErrorResponse> handleAccessDenied(NotFoundException ex, HttpServletRequest request) {
 
         APIErrorResponse response = APIErrorResponse.builder()
                 .code("NOT_FOUND")

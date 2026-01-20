@@ -8,8 +8,8 @@ import net.korperka.antifraud.dto.response.UserResponseDTO;
 import net.korperka.antifraud.entity.User;
 import net.korperka.antifraud.enums.Role;
 import net.korperka.antifraud.exception.InvalidCredentialsException;
+import net.korperka.antifraud.exception.NotFoundException;
 import net.korperka.antifraud.exception.UserAlreadyExistsException;
-import net.korperka.antifraud.exception.UserNotFoundException;
 import net.korperka.antifraud.mapper.UserMapper;
 import net.korperka.antifraud.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -38,15 +38,15 @@ public class UserService {
     }
 
     public void deactivateUser(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findById(id).orElseThrow(NotFoundException::new);
         user.setActive(false);
 
         userRepository.save(user);
     }
 
     public UserResponseDTO getUserById(UUID sourceId, UUID targetId) {
-        User source = userRepository.findById(sourceId).orElseThrow(UserNotFoundException::new);
-        User target = userRepository.findById(targetId).orElseThrow(UserNotFoundException::new);
+        User source = userRepository.findById(sourceId).orElseThrow(NotFoundException::new);
+        User target = userRepository.findById(targetId).orElseThrow(NotFoundException::new);
 
         if(source.getRole() != Role.ADMIN && !sourceId.equals(targetId)) throw new AccessDeniedException("Недостаточно прав для выполнения операции");
 
@@ -54,8 +54,8 @@ public class UserService {
     }
 
     public UserResponseDTO updateUser(UUID sourceId, UUID targetId, UserUpdateRequest request) {
-        User target = userRepository.findById(targetId).orElseThrow(UserNotFoundException::new);
-        User source = userRepository.findById(sourceId).orElseThrow(UserNotFoundException::new);
+        User target = userRepository.findById(targetId).orElseThrow(NotFoundException::new);
+        User source = userRepository.findById(sourceId).orElseThrow(NotFoundException::new);
 
         if(source.getRole() != Role.ADMIN && !sourceId.equals(targetId)) throw new AccessDeniedException("Недостаточно прав для выполнения операции");
 
@@ -73,9 +73,7 @@ public class UserService {
             target.setActive(request.getActive());
         }
 
-        User savedEntity = userRepository.save(target);
-
-        return userMapper.toDto(savedEntity);
+        return userMapper.toDto(userRepository.save(target));
     }
 
     public UserResponseDTO updateUser(UUID id, UserUpdateRequest request) {

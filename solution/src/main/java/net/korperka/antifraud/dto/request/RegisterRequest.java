@@ -1,7 +1,5 @@
 package net.korperka.antifraud.dto.request;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import net.korperka.antifraud.enums.Gender;
