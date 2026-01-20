@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/fraud_rules")
+@RequestMapping("/fraud-rules")
 @Tag(name = "FraudRules", description = "Управление правилами фрода")
 public class FraudRuleController {
     private final FraudRuleService ruleService;
