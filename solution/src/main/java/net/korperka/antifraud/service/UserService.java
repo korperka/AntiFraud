@@ -87,9 +87,7 @@ public class UserService {
     }
 
     public UserResponseDTO createUser(UserCreateRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new UserAlreadyExistsException(request.getEmail());
-        }
+        if (userRepository.existsByEmail(request.getEmail())) throw new UserAlreadyExistsException(request.getEmail());
 
         User user = userMapper.toEntity(request);
 
@@ -98,9 +96,7 @@ public class UserService {
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
 
-        User savedEntity = userRepository.save(user);
-
-        return userMapper.toDto(savedEntity);
+        return userMapper.toDto(userRepository.save(user));
     }
 
     public void deleteUser(Long id) {

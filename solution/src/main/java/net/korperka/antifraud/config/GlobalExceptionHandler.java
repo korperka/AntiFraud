@@ -3,10 +3,7 @@ package net.korperka.antifraud.config;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import net.korperka.antifraud.dto.response.APIErrorResponse;
-import net.korperka.antifraud.exception.InvalidCredentialsException;
-import net.korperka.antifraud.exception.UserAlreadyExistsException;
-import net.korperka.antifraud.exception.UserDeactivatedException;
-import net.korperka.antifraud.exception.UserNotFoundException;
+import net.korperka.antifraud.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -159,7 +156,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<APIErrorResponse> handleUserExists(UserAlreadyExistsException ex, HttpServletRequest request) {
+    public ResponseEntity<APIErrorResponse> handleRuleExists(UserAlreadyExistsException ex, HttpServletRequest request) {
         Map<String, Object> details = Map.of(
                 "field", "email",
                 "value", ex.getEmail()
@@ -172,6 +169,19 @@ public class GlobalExceptionHandler {
                 .timestamp(Instant.now())
                 .path(request.getRequestURI())
                 .details(details)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler(FraudRuleAlreadyExistsException.class)
+    public ResponseEntity<APIErrorResponse> handleRuleExists(FraudRuleAlreadyExistsException ex, HttpServletRequest request) {
+        APIErrorResponse response = APIErrorResponse.builder()
+                .code("RULE_NAME_ALREADY_EXISTS")
+                .message(ex.getMessage())
+                .traceId(UUID.randomUUID().toString())
+                .timestamp(Instant.now())
+                .path(request.getRequestURI())
                 .build();
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);

@@ -3,7 +3,6 @@ package net.korperka.antifraud.service;
 import lombok.RequiredArgsConstructor;
 import net.korperka.antifraud.dto.request.LoginRequest;
 import net.korperka.antifraud.dto.request.RegisterRequest;
-import net.korperka.antifraud.dto.request.UserCreateRequest;
 import net.korperka.antifraud.dto.response.SignInAuthResponse;
 import net.korperka.antifraud.dto.response.SignUpAuthResponse;
 import net.korperka.antifraud.dto.response.UserResponseDTO;
