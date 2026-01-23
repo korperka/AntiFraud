@@ -11,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.file.AccessDeniedException;
 import java.time.Instant;
@@ -150,6 +151,19 @@ public class GlobalExceptionHandler {
                 .timestamp(Instant.now())
                 .path(request.getRequestURI())
                 .fieldErrors(errors)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response);
+    }
+
+    @ExceptionHandler(DateFormatException.class)
+    public ResponseEntity<ApiErrorResponse> handleStatusException(DateFormatException ex, HttpServletRequest request) {
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .code("VALIDATION_FAILED")
+                .message("Некоторые поля не прошли валидацию")
+                .traceId(UUID.randomUUID().toString())
+                .timestamp(Instant.now())
+                .path(request.getRequestURI())
                 .build();
 
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response);

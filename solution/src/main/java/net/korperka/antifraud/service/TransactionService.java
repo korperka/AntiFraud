@@ -12,6 +12,7 @@ import net.korperka.antifraud.dto.response.TransactionResponse;
 import net.korperka.antifraud.entity.FraudRule;
 import net.korperka.antifraud.entity.Transaction;
 import net.korperka.antifraud.enums.TransactionStatus;
+import net.korperka.antifraud.exception.DateFormatException;
 import net.korperka.antifraud.mapper.TransactionMapper;
 import net.korperka.antifraud.repository.FraudRuleRepository;
 import net.korperka.antifraud.repository.TransactionRepository;
@@ -68,8 +69,8 @@ public class TransactionService {
         Pageable pageable = PageRequest.of(page, size);
         Page<Transaction> transactionPage = transactionRepository.findAll(spec, pageable);
 
-        if(from.isAfter(to)) throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "UNPROCESSABLE_ENTITY");
-        if(ChronoUnit.DAYS.between(from, to) > 90) throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "UNPROCESSABLE_ENTITY");
+        if(from.isAfter(to)) throw new DateFormatException();
+        if(ChronoUnit.DAYS.between(from, to) > 90) throw new DateFormatException();
 
         List<TransactionResponse> content = transactionPage.getContent().stream()
                 .map(transactionMapper::toDto)
