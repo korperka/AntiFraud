@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import net.korperka.antifraud.entity.TransactionLocation;
 import net.korperka.antifraud.enums.TransactionChannel;
 
 import java.time.LocalDateTime;
@@ -38,7 +37,7 @@ public class TransactionCreateRequest {
     private String deviceId;
 
     private TransactionChannel channel;
-    private TransactionLocation location;
+    private TransactionLocationDTO location;
 
     private Map<String, Object> metadata;
 }
