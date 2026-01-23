@@ -28,6 +28,7 @@ public class TransactionCreateRequest {
     @Pattern(regexp = "^\\d{4}$")
     private String merchantCategoryCode;
 
+    @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private LocalDateTime timestamp;
 

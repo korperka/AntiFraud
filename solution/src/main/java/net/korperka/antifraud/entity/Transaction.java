@@ -2,7 +2,9 @@ package net.korperka.antifraud.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import net.korperka.antifraud.dto.request.TransactionLocationDTO;
 import net.korperka.antifraud.enums.TransactionChannel;
 import net.korperka.antifraud.enums.TransactionStatus;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -40,6 +42,7 @@ public class Transaction {
     @Column(length = 4)
     private String merchantCategoryCode;
 
+    @NotNull
     @Column(nullable = false)
     private LocalDateTime timestamp;
 
@@ -53,7 +56,7 @@ public class Transaction {
     private TransactionChannel channel;
 
     @Embedded
-    private TransactionLocation location;
+    private TransactionLocationDTO location;
 
     @Column(nullable = false)
     @JsonProperty("isFraud")
