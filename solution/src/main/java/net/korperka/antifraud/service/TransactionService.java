@@ -101,10 +101,8 @@ public class TransactionService {
         transaction.setFraud(fraud);
         transaction.setCreatedAt(LocalDateTime.now());
         transaction.setStatus(fraud ? TransactionStatus.DECLINED : TransactionStatus.APPROVED);
+        transaction.setRuleResults(results);
 
-        TransactionResponse response = transactionMapper.toDto(transactionRepository.save(transaction));
-        response.setRuleResults(results);
-
-        return response;
+        return transactionMapper.toDto(transactionRepository.save(transaction));
     }
 }

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import net.korperka.antifraud.dto.request.TransactionLocationDTO;
+import net.korperka.antifraud.dto.response.FraudRuleEvaluationResult;
 import net.korperka.antifraud.enums.TransactionChannel;
 import net.korperka.antifraud.enums.TransactionStatus;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -12,6 +13,7 @@ import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -68,4 +70,8 @@ public class Transaction {
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private List<FraudRuleEvaluationResult> ruleResults;
 }
