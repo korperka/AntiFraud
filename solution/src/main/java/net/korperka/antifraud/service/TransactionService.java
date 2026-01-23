@@ -58,7 +58,7 @@ public class TransactionService {
         if(ChronoUnit.DAYS.between(from, to) > 90) throw new DateFormatException();
 
         Specification<Transaction> spec = TransactionSpecification.filter(filterUserId, status, fraud, from, to);
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp").descending());
         Page<Transaction> transactionPage = transactionRepository.findAll(spec, pageable);
 
         List<TransactionResponseDTO> content = transactionPage.getContent().stream()
@@ -100,9 +100,10 @@ public class TransactionService {
         }
 
         transaction.setFraud(fraud);
-        transaction.setCreatedAt(LocalDateTime.now());
         transaction.setStatus(fraud ? TransactionStatus.DECLINED : TransactionStatus.APPROVED);
         transaction.setRuleResults(results);
+        transaction.setCreatedAt(LocalDateTime.now());
+        transaction.setTimestamp(LocalDateTime.now());
 
         return transactionMapper.toDto(transactionRepository.save(transaction));
     }
