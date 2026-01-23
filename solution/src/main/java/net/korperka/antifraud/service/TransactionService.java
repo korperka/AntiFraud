@@ -6,6 +6,7 @@ import net.korperka.antifraud.dsl.parser.RuleEvaluationContext;
 import net.korperka.antifraud.dto.request.TransactionCreateRequest;
 import net.korperka.antifraud.dto.response.FraudRuleEvaluationResult;
 import net.korperka.antifraud.dto.response.TransactionListResponse;
+import net.korperka.antifraud.dto.response.TransactionResponseDTO;
 import net.korperka.antifraud.dto.response.TransactionWrappedResponse;
 import net.korperka.antifraud.entity.FraudRule;
 import net.korperka.antifraud.entity.Transaction;
@@ -54,12 +55,12 @@ public class TransactionService {
         if(ChronoUnit.DAYS.between(from, to) > 90) throw new DateFormatException();
 
         Specification<Transaction> spec = TransactionSpecification.filter(filterUserId, status, fraud, from, to);
-        Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp").descending());
         Page<Transaction> transactionPage = transactionRepository.findAll(spec, pageable);
 
 
-        List<TransactionWrappedResponse> content = transactionPage.getContent().stream()
-                .map(transactionMapper::toDto)
+        List<TransactionResponseDTO> content = transactionPage.getContent().stream()
+                .map(transactionMapper::toTransactionDto)
                 .toList();
 
         return new TransactionListResponse(

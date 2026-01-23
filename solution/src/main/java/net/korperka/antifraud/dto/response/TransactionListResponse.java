@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class TransactionListResponse {
-    private List<TransactionWrappedResponse> items;
+    private List<TransactionResponseDTO> items;
     private Integer total;
     private Integer page;
     private Integer size;
