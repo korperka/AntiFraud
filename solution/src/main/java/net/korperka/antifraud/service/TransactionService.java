@@ -28,6 +28,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -51,6 +52,11 @@ public class TransactionService {
             UUID currentUserId,
             boolean isAdmin
     ) {
+        if (to == null)
+            to = LocalDateTime.now();
+        if (from == null)
+            from = to.minusDays(90);
+
         if (!isAdmin) {
             if (filterUserId != null && !filterUserId.equals(currentUserId)) throw new AccessDeniedException("Forbidden");
 
@@ -61,6 +67,7 @@ public class TransactionService {
         Page<Transaction> transactionPage = transactionRepository.findAll(spec, pageable);
 
         if(from != null && from.isAfter(to)) throw new HandlerMethodValidationException(MethodValidationResult.emptyResult());
+        if(from != null && ChronoUnit.DAYS.between(from, to) > 90) throw new HandlerMethodValidationException(MethodValidationResult.emptyResult());
 
         List<TransactionResponse> content = transactionPage.getContent().stream()
                 .map(transactionMapper::toDto)
