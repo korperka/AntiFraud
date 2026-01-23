@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import net.korperka.antifraud.dto.request.UserCreateRequest;
 import net.korperka.antifraud.dto.request.UserUpdateRequest;
 import net.korperka.antifraud.dto.response.UserListResponse;
-import net.korperka.antifraud.dto.response.UserResponseDTO;
+import net.korperka.antifraud.dto.response.UserResponse;
 import net.korperka.antifraud.exception.NotFoundException;
 import net.korperka.antifraud.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -26,13 +26,13 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserCreateRequest request) {
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserCreateRequest request) {
         return ResponseEntity.status(201).body(userService.createUser(request));
     }
 
     @PutMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserResponseDTO> updateCurrentUser(@Valid @RequestBody UserUpdateRequest request, Principal principal) {
+    public ResponseEntity<UserResponse> updateCurrentUser(@Valid @RequestBody UserUpdateRequest request, Principal principal) {
         String userIdString = principal.getName();
         UUID userId = UUID.fromString(userIdString);
 
@@ -41,14 +41,14 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponseDTO> deactivateUser(@PathVariable UUID id) {
+    public ResponseEntity<UserResponse> deactivateUser(@PathVariable UUID id) {
         userService.deactivateUser(id);
         return ResponseEntity.status(204).build();
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable UUID id, @Valid @RequestBody UserUpdateRequest request, Principal principal) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable UUID id, @Valid @RequestBody UserUpdateRequest request, Principal principal) {
         String userIdString = principal.getName();
         UUID userId = UUID.fromString(userIdString);
 
@@ -56,7 +56,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable UUID id, Principal principal) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id, Principal principal) {
         String userIdString = principal.getName();
         UUID userId = UUID.fromString(userIdString);
 
@@ -65,10 +65,10 @@ public class UserController {
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserResponseDTO> getCurrentUser(Principal principal) {
+    public ResponseEntity<UserResponse> getCurrentUser(Principal principal) {
         String userIdString = principal.getName();
         UUID userId = UUID.fromString(userIdString);
-        UserResponseDTO user = userService.getUserById(userId);
+        UserResponse user = userService.getUserById(userId);
 
         if(user == null) throw new NotFoundException();
 

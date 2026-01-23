@@ -2,7 +2,7 @@ package net.korperka.antifraud.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
-import net.korperka.antifraud.dto.response.APIErrorResponse;
+import net.korperka.antifraud.dto.response.ApiErrorResponse;
 import net.korperka.antifraud.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +22,9 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<APIErrorResponse> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
 
-        APIErrorResponse response = APIErrorResponse.builder()
+        ApiErrorResponse response = ApiErrorResponse.builder()
                 .code("FORBIDDEN")
                 .message("Недостаточно прав (нужна другая роль)")
                 .traceId(UUID.randomUUID().toString())
@@ -36,9 +36,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<APIErrorResponse> handleAccessDenied(NotFoundException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleAccessDenied(NotFoundException ex, HttpServletRequest request) {
 
-        APIErrorResponse response = APIErrorResponse.builder()
+        ApiErrorResponse response = ApiErrorResponse.builder()
                 .code("NOT_FOUND")
                 .message("Пользователь не найден")
                 .traceId(UUID.randomUUID().toString())
@@ -50,8 +50,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserDeactivatedException.class)
-    public ResponseEntity<APIErrorResponse> handleUserInactive(UserDeactivatedException ex, HttpServletRequest request) {
-        APIErrorResponse response = APIErrorResponse.builder()
+    public ResponseEntity<ApiErrorResponse> handleUserInactive(UserDeactivatedException ex, HttpServletRequest request) {
+        ApiErrorResponse response = ApiErrorResponse.builder()
                 .code("USER_INACTIVE")
                 .message("Пользователь деактивирован")
                 .traceId(UUID.randomUUID().toString())
@@ -63,8 +63,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<APIErrorResponse> handleUnauthorized(InvalidCredentialsException ex, HttpServletRequest request) {
-        APIErrorResponse response = APIErrorResponse.builder()
+    public ResponseEntity<ApiErrorResponse> handleUnauthorized(InvalidCredentialsException ex, HttpServletRequest request) {
+        ApiErrorResponse response = ApiErrorResponse.builder()
                 .code("UNAUTHORIZED")
                 .message("Токен отсутствует или невалиден")
                 .traceId(UUID.randomUUID().toString())
@@ -76,8 +76,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<APIErrorResponse> handleBadRequest(HttpMessageNotReadableException ex, HttpServletRequest request) {
-        APIErrorResponse response = APIErrorResponse.builder()
+    public ResponseEntity<ApiErrorResponse> handleBadRequest(HttpMessageNotReadableException ex, HttpServletRequest request) {
+        ApiErrorResponse response = ApiErrorResponse.builder()
                 .code("BAD_REQUEST")
                 .message("Невалидный JSON")
                 .traceId(UUID.randomUUID().toString())
@@ -90,16 +90,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
-    public ResponseEntity<APIErrorResponse> handleMethodValidation(HandlerMethodValidationException ex, HttpServletRequest request) {
-        List<APIErrorResponse.ValidationError> errors = ex.getAllValidationResults().stream()
-                .map(result -> APIErrorResponse.ValidationError.builder()
+    public ResponseEntity<ApiErrorResponse> handleMethodValidation(HandlerMethodValidationException ex, HttpServletRequest request) {
+        List<ApiErrorResponse.ValidationError> errors = ex.getAllValidationResults().stream()
+                .map(result -> ApiErrorResponse.ValidationError.builder()
                         .field(result.getMethodParameter().getParameterName())
                         .issue(result.getResolvableErrors().get(0).getDefaultMessage())
                         .rejectedValue(result.getArgument())
                         .build())
                 .toList();
 
-        APIErrorResponse response = APIErrorResponse.builder()
+        ApiErrorResponse response = ApiErrorResponse.builder()
                 .code("VALIDATION_FAILED")
                 .message("Ошибка валидации параметров")
                 .traceId(UUID.randomUUID().toString())
@@ -112,16 +112,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<APIErrorResponse> handleParamsError(ConstraintViolationException ex, HttpServletRequest request) {
-        List<APIErrorResponse.ValidationError> errors = ex.getConstraintViolations().stream()
-                .map(violation -> APIErrorResponse.ValidationError.builder()
+    public ResponseEntity<ApiErrorResponse> handleParamsError(ConstraintViolationException ex, HttpServletRequest request) {
+        List<ApiErrorResponse.ValidationError> errors = ex.getConstraintViolations().stream()
+                .map(violation -> ApiErrorResponse.ValidationError.builder()
                         .field(violation.getPropertyPath().toString())
                         .issue(violation.getMessage())
                         .rejectedValue(violation.getInvalidValue())
                         .build())
                 .toList();
 
-        APIErrorResponse response = APIErrorResponse.builder()
+        ApiErrorResponse response = ApiErrorResponse.builder()
                 .code("VALIDATION_FAILED")
                 .message("Ошибка валидации параметров")
                 .traceId(UUID.randomUUID().toString())
@@ -134,16 +134,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<APIErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        List<APIErrorResponse.ValidationError> errors = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> APIErrorResponse.ValidationError.builder()
+    public ResponseEntity<ApiErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        List<ApiErrorResponse.ValidationError> errors = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> ApiErrorResponse.ValidationError.builder()
                         .field(error.getField())
                         .issue(error.getDefaultMessage())
                         .rejectedValue(error.getRejectedValue())
                         .build())
                 .collect(Collectors.toList());
 
-        APIErrorResponse response = APIErrorResponse.builder()
+        ApiErrorResponse response = ApiErrorResponse.builder()
                 .code("VALIDATION_FAILED")
                 .message("Некоторые поля не прошли валидацию")
                 .traceId(UUID.randomUUID().toString())
@@ -156,13 +156,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<APIErrorResponse> handleRuleExists(UserAlreadyExistsException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleRuleExists(UserAlreadyExistsException ex, HttpServletRequest request) {
         Map<String, Object> details = Map.of(
                 "field", "email",
                 "value", ex.getEmail()
         );
 
-        APIErrorResponse response = APIErrorResponse.builder()
+        ApiErrorResponse response = ApiErrorResponse.builder()
                 .code("EMAIL_ALREADY_EXISTS")
                 .message(ex.getMessage())
                 .traceId(UUID.randomUUID().toString())
@@ -175,8 +175,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(FraudRuleAlreadyExistsException.class)
-    public ResponseEntity<APIErrorResponse> handleRuleExists(FraudRuleAlreadyExistsException ex, HttpServletRequest request) {
-        APIErrorResponse response = APIErrorResponse.builder()
+    public ResponseEntity<ApiErrorResponse> handleRuleExists(FraudRuleAlreadyExistsException ex, HttpServletRequest request) {
+        ApiErrorResponse response = ApiErrorResponse.builder()
                 .code("RULE_NAME_ALREADY_EXISTS")
                 .message(ex.getMessage())
                 .traceId(UUID.randomUUID().toString())

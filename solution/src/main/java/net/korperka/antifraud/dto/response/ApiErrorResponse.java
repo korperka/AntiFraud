@@ -11,7 +11,7 @@ import java.util.Map;
 @Data
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class APIErrorResponse {
+public class ApiErrorResponse {
     private String code;
     private String message;
     private String traceId;

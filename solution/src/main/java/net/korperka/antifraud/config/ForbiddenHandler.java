@@ -5,7 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import net.korperka.antifraud.dto.response.APIErrorResponse;
+import net.korperka.antifraud.dto.response.ApiErrorResponse;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -26,7 +26,7 @@ public class ForbiddenHandler implements AccessDeniedHandler {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
-        APIErrorResponse errorResponse = APIErrorResponse.builder()
+        ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code("FORBIDDEN")
                 .message("Недостаточно прав для выполнения операции")
                 .traceId(UUID.randomUUID().toString())

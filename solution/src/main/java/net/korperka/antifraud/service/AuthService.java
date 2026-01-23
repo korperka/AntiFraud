@@ -5,7 +5,7 @@ import net.korperka.antifraud.dto.request.LoginRequest;
 import net.korperka.antifraud.dto.request.RegisterRequest;
 import net.korperka.antifraud.dto.response.SignInAuthResponse;
 import net.korperka.antifraud.dto.response.SignUpAuthResponse;
-import net.korperka.antifraud.dto.response.UserResponseDTO;
+import net.korperka.antifraud.dto.response.UserResponse;
 import net.korperka.antifraud.entity.User;
 import net.korperka.antifraud.enums.Role;
 import net.korperka.antifraud.exception.InvalidCredentialsException;
@@ -13,7 +13,7 @@ import net.korperka.antifraud.exception.UserAlreadyExistsException;
 import net.korperka.antifraud.exception.UserDeactivatedException;
 import net.korperka.antifraud.mapper.UserMapper;
 import net.korperka.antifraud.repository.UserRepository;
-import net.korperka.antifraud.utils.JWTUtils;
+import net.korperka.antifraud.utils.JwtUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +25,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
-    private final JWTUtils jwtUtils;
+    private final JwtUtils jwtUtils;
 
     public SignInAuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
@@ -35,7 +35,7 @@ public class AuthService {
         if(!user.isActive()) throw new UserDeactivatedException();
 
         String token = jwtUtils.generateToken(user);
-        UserResponseDTO userDto = userMapper.toDto(user);
+        UserResponse userDto = userMapper.toDto(user);
 
         return new SignInAuthResponse(token, userDto, 3600L);
     }

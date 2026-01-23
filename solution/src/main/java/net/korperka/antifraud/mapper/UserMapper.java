@@ -2,14 +2,14 @@ package net.korperka.antifraud.mapper;
 
 import net.korperka.antifraud.dto.request.RegisterRequest;
 import net.korperka.antifraud.dto.request.UserCreateRequest;
-import net.korperka.antifraud.dto.response.UserResponseDTO;
+import net.korperka.antifraud.dto.response.UserResponse;
 import net.korperka.antifraud.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    UserResponseDTO toDto(User user);
+    UserResponse toDto(User user);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "role", ignore = true)

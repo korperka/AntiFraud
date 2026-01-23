@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import net.korperka.antifraud.service.AuthService;
-import net.korperka.antifraud.utils.JWTUtils;
+import net.korperka.antifraud.utils.JwtUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,7 +23,7 @@ import java.util.List;
 public class AuthFilter extends OncePerRequestFilter {
     private final static String BEARER_PREFIX = "Bearer ";
     private final static String HEADER_NAME = "Authorization";
-    private final JWTUtils jwtUtils;
+    private final JwtUtils jwtUtils;
     private final AuthService authService;
 
     @Override

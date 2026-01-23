@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.korperka.antifraud.dto.request.UserCreateRequest;
 import net.korperka.antifraud.dto.request.UserUpdateRequest;
 import net.korperka.antifraud.dto.response.UserListResponse;
-import net.korperka.antifraud.dto.response.UserResponseDTO;
+import net.korperka.antifraud.dto.response.UserResponse;
 import net.korperka.antifraud.entity.User;
 import net.korperka.antifraud.enums.Role;
 import net.korperka.antifraud.exception.InvalidCredentialsException;
@@ -31,7 +31,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
-    public UserResponseDTO getUserById(UUID id) {
+    public UserResponse getUserById(UUID id) {
         User user = userRepository.findById(id).orElseThrow(InvalidCredentialsException::new);
 
         return userMapper.toDto(user);
@@ -44,7 +44,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserResponseDTO getUserById(UUID sourceId, UUID targetId) {
+    public UserResponse getUserById(UUID sourceId, UUID targetId) {
         User source = userRepository.findById(sourceId).orElseThrow(NotFoundException::new);
         User target = userRepository.findById(targetId).orElseThrow(NotFoundException::new);
 
@@ -53,7 +53,7 @@ public class UserService {
         return userMapper.toDto(target);
     }
 
-    public UserResponseDTO updateUser(UUID sourceId, UUID targetId, UserUpdateRequest request) {
+    public UserResponse updateUser(UUID sourceId, UUID targetId, UserUpdateRequest request) {
         User target = userRepository.findById(targetId).orElseThrow(NotFoundException::new);
         User source = userRepository.findById(sourceId).orElseThrow(NotFoundException::new);
 
@@ -76,7 +76,7 @@ public class UserService {
         return userMapper.toDto(userRepository.save(target));
     }
 
-    public UserResponseDTO updateUser(UUID id, UserUpdateRequest request) {
+    public UserResponse updateUser(UUID id, UserUpdateRequest request) {
         return updateUser(id, id, request);
     }
 
@@ -84,7 +84,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public UserResponseDTO createUser(UserCreateRequest request) {
+    public UserResponse createUser(UserCreateRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) throw new UserAlreadyExistsException(request.getEmail());
 
         User user = userMapper.toEntity(request);
@@ -105,7 +105,7 @@ public class UserService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
         Page<User> userPage = userRepository.findAll(pageable);
 
-        List<UserResponseDTO> users = userPage.getContent().stream().map(userMapper::toDto).toList();
+        List<UserResponse> users = userPage.getContent().stream().map(userMapper::toDto).toList();
 
         return new UserListResponse(users, (int) userPage.getTotalElements(), userPage.getNumber(), userPage.getSize());
     }

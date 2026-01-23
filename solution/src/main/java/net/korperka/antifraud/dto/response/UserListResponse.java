@@ -8,7 +8,7 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 public class UserListResponse {
-    private List<UserResponseDTO> items;
+    private List<UserResponse> items;
     private Integer total;
     private Integer page;
     private Integer size;

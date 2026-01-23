@@ -7,5 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class SignUpAuthResponse {
     private String accessToken;
-    private UserResponseDTO user;
+    private UserResponse user;
 }

@@ -1,9 +1,14 @@
 package net.korperka.antifraud.service;
 
 import lombok.RequiredArgsConstructor;
+import net.korperka.antifraud.dsl.DslError;
+import net.korperka.antifraud.dsl.node.Node;
+import net.korperka.antifraud.dsl.parser.DslParser;
 import net.korperka.antifraud.dto.request.FraudRuleDTO;
-import net.korperka.antifraud.dto.response.FraudRuleResponseDTO;
+import net.korperka.antifraud.dto.response.DslValidateResponse;
+import net.korperka.antifraud.dto.response.FraudRuleResponse;
 import net.korperka.antifraud.entity.FraudRule;
+import net.korperka.antifraud.exception.DslParseException;
 import net.korperka.antifraud.exception.FraudRuleAlreadyExistsException;
 import net.korperka.antifraud.exception.NotFoundException;
 import net.korperka.antifraud.mapper.FraudRuleMapper;
@@ -11,6 +16,7 @@ import net.korperka.antifraud.repository.FraudRuleRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,14 +26,32 @@ public class FraudRuleService {
     private final FraudRuleRepository rulesRepository;
     private final FraudRuleMapper rulesMapper;
 
-    public FraudRuleResponseDTO disableRule(UUID ruleId) {
+    public DslValidateResponse validateExpression(String dslExpression) {
+        List<DslError> errors = new ArrayList<>();
+        boolean valid = true;
+
+        try {
+            new DslParser(dslExpression).parse();
+        } catch (DslParseException e) {
+            errors.add(new DslError(e.getMessage(), e.getMessage(), e.getNear(), e.getPosition()));
+            valid = false;
+        }
+        catch(Exception e) {
+            errors.add(new DslError(e.getMessage(), e.getMessage(), null, null));
+            valid = false;
+        }
+
+        return new DslValidateResponse(valid, dslExpression, errors);
+    }
+
+    public FraudRuleResponse disableRule(UUID ruleId) {
         FraudRule rule = rulesRepository.findById(ruleId).orElseThrow(NotFoundException::new);
         rule.setEnabled(false);
 
         return rulesMapper.toDto(rulesRepository.save(rule));
     }
 
-    public FraudRuleResponseDTO updateRule(FraudRuleDTO sourceDTO, UUID targetId) {
+    public FraudRuleResponse updateRule(FraudRuleDTO sourceDTO, UUID targetId) {
         FraudRule target = rulesRepository.findById(targetId).orElseThrow(NotFoundException::new);
         FraudRule source = rulesMapper.toEntity(sourceDTO);
 
@@ -35,7 +59,7 @@ public class FraudRuleService {
 
         target.setName(source.getName());
         target.setDescription(source.getDescription());
-        target.setDslExpression(source.getDslExpression());
+        target.setDslExpression(DslParser.normalizeExpressionSafe(source.getDslExpression()));
         target.setEnabled(source.isEnabled());
         target.setPriority(source.getPriority());
         target.setUpdatedAt(LocalDateTime.now());
@@ -43,21 +67,22 @@ public class FraudRuleService {
         return rulesMapper.toDto(rulesRepository.save(target));
     }
 
-    public FraudRuleResponseDTO getRuleById(UUID id) {
+    public FraudRuleResponse getRuleById(UUID id) {
         return rulesMapper.toDto(rulesRepository.findById(id).orElseThrow(NotFoundException::new));
     }
 
-    public List<FraudRuleResponseDTO> getAllRules() {
+    public List<FraudRuleResponse> getAllRules() {
         return rulesRepository.findAll().stream().map(rulesMapper::toDto).toList();
     }
 
-    public FraudRuleResponseDTO createFraudRule(FraudRuleDTO request) {
+    public FraudRuleResponse createFraudRule(FraudRuleDTO request) {
         if(rulesRepository.existsByName(request.getName())) throw new FraudRuleAlreadyExistsException();
 
         FraudRule rule = rulesMapper.toEntity(request);
 
         rule.setCreatedAt(LocalDateTime.now());
         rule.setUpdatedAt(LocalDateTime.now());
+        rule.setDslExpression(DslParser.normalizeExpressionSafe(request.getDslExpression()));
 
         return rulesMapper.toDto(rulesRepository.save(rule));
     }

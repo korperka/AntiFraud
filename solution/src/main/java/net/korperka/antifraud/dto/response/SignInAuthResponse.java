@@ -7,6 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class SignInAuthResponse {
     private String accessToken;
-    private UserResponseDTO user;
+    private UserResponse user;
     private Long expiresIn;
 }
