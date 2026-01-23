@@ -55,22 +55,16 @@ public class TransactionService {
             UUID currentUserId,
             boolean isAdmin
     ) {
-        if (to == null)
-            to = LocalDateTime.now();
-        if (from == null)
-            from = to.minusDays(90);
+        if (to == null) to = LocalDateTime.now();
+        if (from == null) from = to.minusDays(90);
+        if (!isAdmin) filterUserId = currentUserId;
+        if(from.isAfter(to)) throw new DateFormatException();
+        if(ChronoUnit.DAYS.between(from, to) > 90) throw new DateFormatException();
 
-        if (!isAdmin) {
-            if (filterUserId != null && !filterUserId.equals(currentUserId)) throw new AccessDeniedException("Forbidden");
-
-            filterUserId = currentUserId;
-        }
         Specification<Transaction> spec = TransactionSpecification.filter(filterUserId, status, fraud, from, to);
         Pageable pageable = PageRequest.of(page, size);
         Page<Transaction> transactionPage = transactionRepository.findAll(spec, pageable);
 
-        if(from.isAfter(to)) throw new DateFormatException();
-        if(ChronoUnit.DAYS.between(from, to) > 90) throw new DateFormatException();
 
         List<TransactionResponse> content = transactionPage.getContent().stream()
                 .map(transactionMapper::toDto)
