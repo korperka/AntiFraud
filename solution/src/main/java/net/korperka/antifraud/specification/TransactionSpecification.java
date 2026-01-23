@@ -5,29 +5,32 @@ import net.korperka.antifraud.enums.TransactionStatus;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import jakarta.persistence.criteria.Predicate;
 
 public class TransactionSpecification {
     public static Specification<Transaction> filter(UUID userId, TransactionStatus status, Boolean fraud, LocalDateTime from, LocalDateTime to) {
         return (root, query, cb) -> {
-            Specification<Transaction> spec = Specification.where(null);
+            List<Predicate> predicates = new ArrayList<>();
 
             if (userId != null)
-                spec = spec.and((r, q, b) -> b.equal(r.get("userId"), userId));
+                predicates.add(cb.equal(root.get("userId"), userId));
 
             if (status != null)
-                spec = spec.and((r, q, b) -> b.equal(r.get("status"), status));
+                predicates.add(cb.equal(root.get("status"), status));
 
             if (fraud != null)
-                spec = spec.and((r, q, b) -> b.equal(r.get("fraud"), fraud));
+                predicates.add(cb.equal(root.get("fraud"), fraud));
 
             if (from != null)
-                spec = spec.and((r, q, b) -> b.greaterThanOrEqualTo(r.get("createdAt"), from));
+                predicates.add(cb.greaterThanOrEqualTo(root.get("timestamp"), from));
 
             if (to != null)
-                spec = spec.and((r, q, b) -> b.lessThanOrEqualTo(r.get("createdAt"), to));
+                predicates.add(cb.lessThan(root.get("timestamp"), to));
 
-            return spec.toPredicate(root, query, cb);
+            return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
 }
