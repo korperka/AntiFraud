@@ -12,9 +12,11 @@ import net.korperka.antifraud.entity.FraudRule;
 import net.korperka.antifraud.entity.Transaction;
 import net.korperka.antifraud.enums.TransactionStatus;
 import net.korperka.antifraud.exception.DateFormatException;
+import net.korperka.antifraud.exception.NotFoundException;
 import net.korperka.antifraud.mapper.TransactionMapper;
 import net.korperka.antifraud.repository.FraudRuleRepository;
 import net.korperka.antifraud.repository.TransactionRepository;
+import net.korperka.antifraud.repository.UserRepository;
 import net.korperka.antifraud.specification.TransactionSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,6 +38,7 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final FraudRuleRepository rulesRepository;
     private final TransactionMapper transactionMapper;
+    private final UserRepository userRepository;
 
     public TransactionListResponse getTransactions(
             UUID filterUserId,
@@ -58,7 +61,6 @@ public class TransactionService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp").descending());
         Page<Transaction> transactionPage = transactionRepository.findAll(spec, pageable);
 
-
         List<TransactionResponseDTO> content = transactionPage.getContent().stream()
                 .map(transactionMapper::toTransactionDto)
                 .toList();
@@ -73,6 +75,8 @@ public class TransactionService {
 
     public TransactionWrappedResponse createTransaction(TransactionCreateRequest request) {
         Transaction transaction = transactionMapper.toEntity(request);
+
+        if (!userRepository.existsById(request.getUserId())) throw new NotFoundException();
 
         List<FraudRuleEvaluationResult> results = new ArrayList<>();
         List<FraudRule> rules = rulesRepository.findByEnabledTrue();

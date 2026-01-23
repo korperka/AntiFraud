@@ -50,6 +50,6 @@ public class TransactionController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<TransactionWrappedResponse> createTransaction(@Valid @RequestBody TransactionCreateRequest request) {
-        return ResponseEntity.ok(transactionService.createTransaction(request));
+        return ResponseEntity.status(201).body(transactionService.createTransaction(request));
     }
 }

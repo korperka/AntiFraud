@@ -9,7 +9,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class TransactionWrappedResponse {
-    @JsonUnwrapped
     private TransactionResponseDTO transaction;
     private List<FraudRuleEvaluationResult> ruleResults;
 }
