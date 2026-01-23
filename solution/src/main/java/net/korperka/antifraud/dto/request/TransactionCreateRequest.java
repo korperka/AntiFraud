@@ -1,6 +1,7 @@
 package net.korperka.antifraud.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,6 +38,7 @@ public class TransactionCreateRequest {
     private String deviceId;
 
     private TransactionChannel channel;
+    @Valid
     private TransactionLocationDTO location;
 
     private Map<String, Object> metadata;
