@@ -60,8 +60,7 @@ public class Transaction {
     @Embedded
     private TransactionLocationDTO location;
 
-    @Column(nullable = false)
-    @JsonProperty("isFraud")
+    @Column(name = "is_fraud", nullable = false)
     private boolean fraud;
 
     @JdbcTypeCode(SqlTypes.JSON)

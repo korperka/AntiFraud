@@ -19,7 +19,7 @@ public class TransactionSpecification {
                 spec = spec.and((r, q, b) -> b.equal(r.get("status"), status));
 
             if (fraud != null)
-                spec = spec.and((r, q, b) -> b.equal(r.get("isFraud"), fraud));
+                spec = spec.and((r, q, b) -> b.equal(r.get("fraud"), fraud));
 
             if (from != null)
                 spec = spec.and((r, q, b) -> b.greaterThanOrEqualTo(r.get("createdAt"), from));

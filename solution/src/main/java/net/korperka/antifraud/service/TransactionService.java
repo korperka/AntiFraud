@@ -62,7 +62,7 @@ public class TransactionService {
         if(ChronoUnit.DAYS.between(from, to) > 90) throw new DateFormatException();
 
         Specification<Transaction> spec = TransactionSpecification.filter(filterUserId, status, fraud, from, to);
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Transaction> transactionPage = transactionRepository.findAll(spec, pageable);
 
 
