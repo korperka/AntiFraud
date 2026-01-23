@@ -21,11 +21,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.method.MethodValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -66,8 +68,8 @@ public class TransactionService {
         Pageable pageable = PageRequest.of(page, size);
         Page<Transaction> transactionPage = transactionRepository.findAll(spec, pageable);
 
-        if(from != null && from.isAfter(to)) throw new HandlerMethodValidationException(MethodValidationResult.emptyResult());
-        if(from != null && ChronoUnit.DAYS.between(from, to) > 90) throw new HandlerMethodValidationException(MethodValidationResult.emptyResult());
+        if(from.isAfter(to)) throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "UNPROCESSABLE_ENTITY");
+        if(ChronoUnit.DAYS.between(from, to) > 90) throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "UNPROCESSABLE_ENTITY");
 
         List<TransactionResponse> content = transactionPage.getContent().stream()
                 .map(transactionMapper::toDto)
