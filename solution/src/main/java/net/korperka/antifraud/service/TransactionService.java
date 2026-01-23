@@ -1,14 +1,12 @@
 package net.korperka.antifraud.service;
 
-import jakarta.validation.ConstraintDeclarationException;
-import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import net.korperka.antifraud.dsl.parser.DslParser;
 import net.korperka.antifraud.dsl.parser.RuleEvaluationContext;
 import net.korperka.antifraud.dto.request.TransactionCreateRequest;
 import net.korperka.antifraud.dto.response.FraudRuleEvaluationResult;
 import net.korperka.antifraud.dto.response.TransactionListResponse;
-import net.korperka.antifraud.dto.response.TransactionResponse;
+import net.korperka.antifraud.dto.response.TransactionWrappedResponse;
 import net.korperka.antifraud.entity.FraudRule;
 import net.korperka.antifraud.entity.Transaction;
 import net.korperka.antifraud.enums.TransactionStatus;
@@ -22,13 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.method.MethodValidationResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.method.annotation.HandlerMethodValidationException;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -66,7 +58,7 @@ public class TransactionService {
         Page<Transaction> transactionPage = transactionRepository.findAll(spec, pageable);
 
 
-        List<TransactionResponse> content = transactionPage.getContent().stream()
+        List<TransactionWrappedResponse> content = transactionPage.getContent().stream()
                 .map(transactionMapper::toDto)
                 .toList();
 
@@ -78,7 +70,7 @@ public class TransactionService {
         );
     }
 
-    public TransactionResponse createTransaction(TransactionCreateRequest request) {
+    public TransactionWrappedResponse createTransaction(TransactionCreateRequest request) {
         Transaction transaction = transactionMapper.toEntity(request);
 
         List<FraudRuleEvaluationResult> results = new ArrayList<>();

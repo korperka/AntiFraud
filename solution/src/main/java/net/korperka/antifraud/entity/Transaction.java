@@ -60,6 +60,7 @@ public class Transaction {
     @Embedded
     private TransactionLocationDTO location;
 
+    @JsonProperty("isFraud")
     @Column(name = "is_fraud", nullable = false)
     private boolean fraud;
 

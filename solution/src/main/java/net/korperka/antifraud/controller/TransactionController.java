@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import net.korperka.antifraud.dto.request.TransactionCreateRequest;
 import net.korperka.antifraud.dto.response.TransactionListResponse;
-import net.korperka.antifraud.dto.response.TransactionResponse;
+import net.korperka.antifraud.dto.response.TransactionWrappedResponse;
 import net.korperka.antifraud.enums.TransactionStatus;
 import net.korperka.antifraud.service.TransactionService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -49,7 +49,7 @@ public class TransactionController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<TransactionResponse> createTransaction(@Valid @RequestBody TransactionCreateRequest request) {
+    public ResponseEntity<TransactionWrappedResponse> createTransaction(@Valid @RequestBody TransactionCreateRequest request) {
         return ResponseEntity.ok(transactionService.createTransaction(request));
     }
 }
