@@ -28,7 +28,7 @@ public class ForbiddenHandler implements AccessDeniedHandler {
 
         ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code("FORBIDDEN")
-                .message("Недостаточно прав для выполнения операции")
+                .message("Forbidden")
                 .traceId(UUID.randomUUID().toString())
                 .timestamp(Instant.now())
                 .path(request.getRequestURI())

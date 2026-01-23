@@ -48,7 +48,7 @@ public class UserService {
         User source = userRepository.findById(sourceId).orElseThrow(NotFoundException::new);
         User target = userRepository.findById(targetId).orElseThrow(NotFoundException::new);
 
-        if(source.getRole() != Role.ADMIN && !sourceId.equals(targetId)) throw new AccessDeniedException("Недостаточно прав для выполнения операции");
+        if(source.getRole() != Role.ADMIN && !sourceId.equals(targetId)) throw new AccessDeniedException("Forbidden");
 
         return userMapper.toDto(target);
     }
@@ -57,7 +57,7 @@ public class UserService {
         User target = userRepository.findById(targetId).orElseThrow(NotFoundException::new);
         User source = userRepository.findById(sourceId).orElseThrow(NotFoundException::new);
 
-        if(source.getRole() != Role.ADMIN && !sourceId.equals(targetId)) throw new AccessDeniedException("Недостаточно прав для выполнения операции");
+        if(source.getRole() != Role.ADMIN && !sourceId.equals(targetId)) throw new AccessDeniedException("Forbidden");
 
         target.setFullName(request.getFullName());
         target.setAge(request.getAge());
@@ -67,7 +67,7 @@ public class UserService {
         target.setUpdatedAt(LocalDateTime.now());
 
         if(request.getRole() != null || request.getActive() != null) {
-            if(source.getRole() != Role.ADMIN) throw new AccessDeniedException("Недостаточно прав для выполнения операции");
+            if(source.getRole() != Role.ADMIN) throw new AccessDeniedException("Forbidden");
 
             target.setRole(request.getRole());
             target.setActive(request.getActive());

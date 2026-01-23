@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
 
         ApiErrorResponse response = ApiErrorResponse.builder()
                 .code("FORBIDDEN")
-                .message("Недостаточно прав (нужна другая роль)")
+                .message("Forbidden")
                 .traceId(UUID.randomUUID().toString())
                 .timestamp(Instant.now())
                 .path(request.getRequestURI())
