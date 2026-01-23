@@ -54,8 +54,13 @@ services:
       - REDIS_PORT=6379
       - PIPELINE_URL=${CI_PIPELINE_URL} 
       - JOB_ID=${CI_JOB_ID}
+      - JOB_NAME=${CI_JOB_NAME}
+      - COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}
+      - IMAGE_NAME=${IMAGE_NAME}
     volumes:
       - ./reports:/report
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./docker-compose.yaml:/docker-compose.yaml
     depends_on:
       postgres:
         condition: service_healthy
