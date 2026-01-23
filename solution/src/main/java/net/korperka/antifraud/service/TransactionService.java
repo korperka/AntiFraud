@@ -14,6 +14,7 @@ import net.korperka.antifraud.enums.TransactionStatus;
 import net.korperka.antifraud.exception.DateFormatException;
 import net.korperka.antifraud.exception.NotFoundException;
 import net.korperka.antifraud.mapper.TransactionMapper;
+import net.korperka.antifraud.mapper.UserMapper;
 import net.korperka.antifraud.repository.FraudRuleRepository;
 import net.korperka.antifraud.repository.TransactionRepository;
 import net.korperka.antifraud.repository.UserRepository;
@@ -39,6 +40,7 @@ public class TransactionService {
     private final FraudRuleRepository rulesRepository;
     private final TransactionMapper transactionMapper;
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     public TransactionListResponse getTransactions(
             UUID filterUserId,
@@ -76,7 +78,8 @@ public class TransactionService {
     public TransactionWrappedResponse createTransaction(TransactionCreateRequest request) {
         Transaction transaction = transactionMapper.toEntity(request);
 
-        if (!userRepository.existsById(request.getUserId())) throw new NotFoundException();
+        UUID userId = request.getUserId();
+        if (!userRepository.existsById(userId)) throw new NotFoundException();
 
         List<FraudRuleEvaluationResult> results = new ArrayList<>();
         List<FraudRule> rules = rulesRepository.findByEnabledTrue();
@@ -84,6 +87,7 @@ public class TransactionService {
 
         RuleEvaluationContext context = RuleEvaluationContext.builder()
                 .transaction(request)
+                .user(userMapper.toDto(userRepository.findById(userId).orElseThrow(NotFoundException::new)))
                 .build();
 
         boolean fraud = false;

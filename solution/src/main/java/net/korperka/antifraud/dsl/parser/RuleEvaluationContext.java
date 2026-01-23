@@ -24,7 +24,7 @@ public class RuleEvaluationContext {
                 case "ipAddress": return transaction.getIpAddress();
                 case "deviceId": return transaction.getDeviceId();
             }
-            if(transaction.getMetadata() != null && !transaction.getMetadata().isEmpty()) return transaction.getMetadata().get(fieldName);
+            if(transaction.getMetadata() != null && !transaction.getMetadata().isEmpty() && transaction.getMetadata().containsKey(fieldName)) return transaction.getMetadata().get(fieldName);
         }
         if (user != null) {
             switch (fieldName) {

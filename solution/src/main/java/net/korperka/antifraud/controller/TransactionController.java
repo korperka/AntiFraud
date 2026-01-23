@@ -46,8 +46,7 @@ public class TransactionController {
         );
     }
 
-
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity<TransactionWrappedResponse> createTransaction(@Valid @RequestBody TransactionCreateRequest request) {
         return ResponseEntity.status(201).body(transactionService.createTransaction(request));
