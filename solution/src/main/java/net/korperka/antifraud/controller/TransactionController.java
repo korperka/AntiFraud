@@ -28,7 +28,7 @@ public class TransactionController {
     public ResponseEntity<TransactionListResponse> getTransactions(
             @RequestParam(required = false) UUID userId,
             @RequestParam(required = false) TransactionStatus status,
-            @RequestParam(required = false) Boolean fraud,
+            @RequestParam(required = false) Boolean isFraud,
             @RequestParam(required = false) LocalDateTime from,
             @RequestParam(required = false) LocalDateTime to,
             @RequestParam(defaultValue = "0") @Min(0) int page,
@@ -41,7 +41,7 @@ public class TransactionController {
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
         return ResponseEntity.ok(
-                transactionService.getTransactions(userId, status, fraud, from, to, page, size, currentUserId, isAdmin)
+                transactionService.getTransactions(userId, status, isFraud, from, to, page, size, currentUserId, isAdmin)
         );
     }
 
