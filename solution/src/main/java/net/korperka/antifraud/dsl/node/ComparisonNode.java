@@ -8,12 +8,17 @@ import net.korperka.antifraud.exception.InvalidOperatorException;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class ComparisonNode implements Node {
     private final String field;
     private final String operator;
     private final String expectedValue;
     private final TokenType valueType;
+
+    private static final Set<String> ALLOW_NUMBER_COMPARISON = Set.of(
+            "merchantCategoryCode", "channel", "merchantId", "user.id"
+    );
 
     private static final Map<String, TokenType> FIELD_TYPES = Map.ofEntries(
             Map.entry("amount", TokenType.NUMBER),
@@ -45,18 +50,17 @@ public class ComparisonNode implements Node {
 
         TokenType fieldType = FIELD_TYPES.get(field);
 
-        if (fieldType == TokenType.NUMBER && valueType == TokenType.STRING) {
-            throw new InvalidOperatorException();
-        }
-        if (fieldType == TokenType.STRING && valueType == TokenType.NUMBER) {
-            throw new InvalidOperatorException();
-        }
-
-        if (fieldType == TokenType.STRING) {
-            if (!operator.equals("=") && !operator.equals("!=")) {
+        if (fieldType == TokenType.NUMBER && valueType == TokenType.STRING)
+            if (!ALLOW_NUMBER_COMPARISON.contains(field))
                 throw new InvalidOperatorException();
-            }
-        }
+
+        if (fieldType == TokenType.STRING && valueType == TokenType.NUMBER)
+            if (!ALLOW_NUMBER_COMPARISON.contains(field))
+                throw new InvalidOperatorException();
+
+        if (fieldType == TokenType.STRING)
+            if (!operator.equals("=") && !operator.equals("!="))
+                throw new InvalidOperatorException();
 
         this.field = field;
         this.operator = operator;
@@ -93,9 +97,14 @@ public class ComparisonNode implements Node {
         if (actualIsNumber) {
             double actual = ((Number) fieldValue).doubleValue();
             double expected = Double.parseDouble(expectedValue);
+
             return compareNumbers(actual, expected);
         } else {
             String cleanExpected = expectedValue.replace("'", "");
+            if (cleanExpected.endsWith(".0")) {
+                cleanExpected = cleanExpected.substring(0, cleanExpected.length() - 2);
+            }
+
             return compareStrings(fieldValue.toString(), cleanExpected);
         }
     }
