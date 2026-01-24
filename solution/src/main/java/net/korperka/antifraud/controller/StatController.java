@@ -37,7 +37,7 @@ public class StatController {
         return ResponseEntity.ok(statService.getMerchantRiskStats(from, to, merchantCategoryCode, top));
     }
 
-    @GetMapping("/rule/matches")
+    @GetMapping("/rules/matches")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RuleMatchStats> getMatchStats(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
@@ -47,7 +47,7 @@ public class StatController {
         return ResponseEntity.ok(statService.getRuleStats(from, to, top));
     }
 
-    @GetMapping("/timeseries")
+    @GetMapping("/transactions/timeseries")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TransactionsTimeSeries> getTimeSeries(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
