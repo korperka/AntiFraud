@@ -29,7 +29,13 @@ public class ComparisonNode implements Node {
             Map.entry("user.gender", TokenType.STRING),
             Map.entry("user.maritalStatus", TokenType.STRING),
             Map.entry("user.role", TokenType.STRING),
-            Map.entry("user.isActive", TokenType.STRING)
+            Map.entry("user.isActive", TokenType.STRING),
+            Map.entry("merchantCategoryCode", TokenType.STRING),
+            Map.entry("channel", TokenType.STRING),
+            Map.entry("location.country", TokenType.STRING),
+            Map.entry("location.city", TokenType.STRING),
+            Map.entry("location.latitude", TokenType.NUMBER),
+            Map.entry("location.longitude", TokenType.NUMBER)
     );
 
     public ComparisonNode(String field, String operator, String expectedValue, TokenType valueType) {

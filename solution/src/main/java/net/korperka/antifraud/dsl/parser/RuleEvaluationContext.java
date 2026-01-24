@@ -25,6 +25,10 @@ public class RuleEvaluationContext {
                 case "deviceId": return transaction.getDeviceId();
                 case "merchantCategoryCode": return transaction.getMerchantCategoryCode();
                 case "channel": return transaction.getChannel() != null ? transaction.getChannel().name() : null;
+                case "location.country": return transaction.getLocation() != null ? transaction.getLocation().getCountry() : null;
+                case "location.city": return transaction.getLocation() != null ? transaction.getLocation().getCity() : null;
+                case "location.latitude": return transaction.getLocation() != null ? transaction.getLocation().getLatitude() : null;
+                case "location.longitude": return transaction.getLocation() != null ? transaction.getLocation().getLongitude() : null;
             }
             if(transaction.getMetadata() != null && !transaction.getMetadata().isEmpty() && transaction.getMetadata().containsKey(fieldName)) return transaction.getMetadata().get(fieldName);
         }
