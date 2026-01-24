@@ -49,9 +49,8 @@ public class TransactionService {
     private final UserMapper userMapper;
     private final Validator validator;
     private final ObjectMapper objectMapper;
-    @Autowired
     @Lazy
-    private TransactionService self;
+    private final TransactionService self;
 
     public TransactionBatchResult createBatch(TransactionBatchCreateRequest request) {
         List<TransactionBatchResultItem> results = new ArrayList<>();
