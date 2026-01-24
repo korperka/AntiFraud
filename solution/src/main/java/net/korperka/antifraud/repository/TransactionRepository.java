@@ -52,7 +52,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
         FROM transactions t,
              jsonb_array_elements(t.rule_results) as r
         WHERE t.timestamp >= :from AND t.timestamp < :to
-          AND (r->>'matched')::boolean = true
+          AND t.rule_results IS NOT NULL
+          AND (r->>'matched') = 'true'
     ),
     total_declined AS (
         SELECT COUNT(*) as cnt FROM transactions t
@@ -65,8 +66,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
         COUNT(*) as matches,
         COUNT(DISTINCT er.user_id) as uniqueUsers,
         COUNT(DISTINCT er.merchant_id) as uniqueMerchants,
-        -- shareOfDeclines = matches / total_declined
-        (CAST(COUNT(*) AS float) / NULLIF((SELECT cnt FROM total_declined), 0)) as shareOfDeclines
+        COALESCE((CAST(COUNT(*) AS float) / NULLIF((SELECT cnt FROM total_declined), 0)), 0) as shareOfDeclines
     FROM exploded_rules er
     GROUP BY er.rule_id, er.rule_name
     ORDER BY matches DESC
