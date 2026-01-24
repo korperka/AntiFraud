@@ -197,6 +197,6 @@ public class TransactionService {
         transaction.setCreatedAt(LocalDateTime.now());
         transaction.setTimestamp(request.getTimestamp());
 
-        return transactionMapper.toDto(transactionRepository.save(transaction));
+        return transactionMapper.toDto(transactionRepository.saveAndFlush(transaction));
     }
 }
