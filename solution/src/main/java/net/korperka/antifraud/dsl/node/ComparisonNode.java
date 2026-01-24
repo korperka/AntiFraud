@@ -75,6 +75,14 @@ public class ComparisonNode implements Node {
         boolean actualIsNumber = fieldValue instanceof Number;
         boolean actualIsString = fieldValue instanceof String;
 
+        System.out.printf("DEBUG CHECK: Field='%s' | Actual='%s' (%s) | Expected='%s' | Op='%s'%n",
+                field,
+                fieldValue,
+                fieldValue.getClass().getSimpleName(),
+                expectedValue,
+                operator
+        );
+
         if (actualIsNumber && expectedIsString) {
             throw new InvalidOperatorException();
         }
