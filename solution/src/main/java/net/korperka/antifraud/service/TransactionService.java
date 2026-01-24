@@ -183,6 +183,10 @@ public class TransactionService {
 
         List<FraudRuleEvaluationResult> results = new ArrayList<>();
         List<FraudRule> rules = rulesRepository.findByEnabledTrue();
+        System.out.println("DEBUG: Loaded " + rules.size() + " active rules.");
+        for (FraudRule r : rules) {
+            System.out.println("DEBUG RULE: " + r.getDslExpression());
+        }
         rules.sort(Comparator.comparingInt(FraudRule::getPriority));
 
         RuleEvaluationContext context = RuleEvaluationContext.builder()
@@ -201,6 +205,10 @@ public class TransactionService {
 
             FraudRuleEvaluationResult result = new FraudRuleEvaluationResult(rule.getId(), rule.getName(), rule.getPriority(), rule.isEnabled(), matched, rule.getDescription());
             results.add(result);
+        }
+
+        if (!fraud) {
+            System.out.println("DEBUG: Transaction APPROVED. MCC=" + transaction.getMerchantCategoryCode() + ", Merchant=" + transaction.getMerchantId());
         }
 
         transaction.setFraud(fraud);
