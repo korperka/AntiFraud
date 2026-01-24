@@ -4,12 +4,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import net.korperka.antifraud.dto.request.TransactionBatchCreateRequest;
 import net.korperka.antifraud.dto.request.TransactionCreateRequest;
+import net.korperka.antifraud.dto.response.TransactionBatchResult;
 import net.korperka.antifraud.dto.response.TransactionListResponse;
 import net.korperka.antifraud.dto.response.TransactionWrappedResponse;
 import net.korperka.antifraud.enums.TransactionStatus;
 import net.korperka.antifraud.service.TransactionService;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -24,6 +27,19 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TransactionController {
     private final TransactionService transactionService;
+
+    @PostMapping("/batch")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<TransactionBatchResult> createBatch(@RequestBody TransactionBatchCreateRequest request) {
+        TransactionBatchResult result = transactionService.createBatch(request);
+
+        boolean hasErrors = result.getItems().stream().anyMatch(item -> item.getError() != null);
+
+        HttpStatus status = hasErrors ? HttpStatus.MULTI_STATUS : HttpStatus.CREATED;
+
+        return ResponseEntity.status(status).body(result);
+    }
+
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<TransactionListResponse> getTransactions(
