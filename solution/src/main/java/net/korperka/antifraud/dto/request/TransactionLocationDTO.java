@@ -4,13 +4,11 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import net.korperka.antifraud.validation.ValidCoordinates;
 
 @Data
 @ValidCoordinates
-@AllArgsConstructor
 public class TransactionLocationDTO {
     @Pattern(regexp = "^[A-Z]{2}$")
     private String country;
