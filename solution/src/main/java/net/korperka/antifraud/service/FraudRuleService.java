@@ -57,7 +57,7 @@ public class FraudRuleService {
         FraudRule target = rulesRepository.findById(targetId).orElseThrow(() -> new NotFoundException(targetId));
         FraudRule source = rulesMapper.toEntity(sourceDTO);
 
-        if(rulesRepository.existsByNameAndIdNot(source.getName(), source.getId())) throw new FraudRuleAlreadyExistsException();
+        if(rulesRepository.existsByNameAndIdNot(source.getName(), targetId)) throw new FraudRuleAlreadyExistsException();
 
         target.setName(source.getName());
         target.setDescription(source.getDescription());
