@@ -43,7 +43,7 @@ public class FraudRuleService {
             valid = false;
         }
 
-        return new DslValidateResponse(valid, dslExpression, errors);
+        return new DslValidateResponse(valid, DslParser.normalizeExpressionSafe(dslExpression), errors);
     }
 
     public FraudRuleResponse disableRule(UUID ruleId) {
