@@ -1,6 +1,6 @@
 package net.korperka.antifraud.dsl.node;
 
-import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.korperka.antifraud.dsl.parser.RuleEvaluationContext;
 import net.korperka.antifraud.dsl.token.TokenType;
 import net.korperka.antifraud.exception.InvalidFieldException;
@@ -8,12 +8,17 @@ import net.korperka.antifraud.exception.InvalidOperatorException;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class ComparisonNode implements Node {
     private final String field;
     private final String operator;
     private final String expectedValue;
     private final TokenType valueType;
+
+    private static final Set<String> NUMERIC_STRINGS = Set.of(
+            "merchantCategoryCode", "channel", "user.id", "merchantId"
+    );
 
     private static final Map<String, TokenType> FIELD_TYPES = Map.ofEntries(
             Map.entry("amount", TokenType.NUMBER),
@@ -48,8 +53,11 @@ public class ComparisonNode implements Node {
         if (fieldType == TokenType.NUMBER && valueType == TokenType.STRING) {
             throw new InvalidOperatorException();
         }
+
         if (fieldType == TokenType.STRING && valueType == TokenType.NUMBER) {
-            throw new InvalidOperatorException();
+            if (!NUMERIC_STRINGS.contains(field)) {
+                throw new InvalidOperatorException();
+            }
         }
 
         if (fieldType == TokenType.STRING) {
@@ -67,36 +75,21 @@ public class ComparisonNode implements Node {
     @Override
     public boolean evaluate(RuleEvaluationContext context) {
         Object fieldValue = context.getFieldValue(field);
-        if(fieldValue == null) return false;
+        if (fieldValue == null) return false;
 
-        boolean expectedIsString = expectedValue.startsWith("'");
-        boolean expectedIsNumber = !expectedIsString;
-
-        boolean actualIsNumber = fieldValue instanceof Number;
-        boolean actualIsString = fieldValue instanceof String;
-
-        System.out.printf("DEBUG CHECK: Field='%s' | Actual='%s' (%s) | Expected='%s' | Op='%s'%n",
-                field,
-                fieldValue,
-                fieldValue.getClass().getSimpleName(),
-                expectedValue,
-                operator
-        );
-
-        if (actualIsNumber && expectedIsString) {
-            throw new InvalidOperatorException();
-        }
-        if (actualIsString && expectedIsNumber) {
-            throw new InvalidOperatorException();
-        }
-
-        if (actualIsNumber) {
+        if (fieldValue instanceof Number) {
             double actual = ((Number) fieldValue).doubleValue();
             double expected = Double.parseDouble(expectedValue);
             return compareNumbers(actual, expected);
         } else {
-            String cleanExpected = expectedValue.replace("'", "");
-            return compareStrings(fieldValue.toString(), cleanExpected);
+            String actual = fieldValue.toString();
+            String expected = expectedValue.replace("'", "");
+
+            if (expected.endsWith(".0")) {
+                expected = expected.substring(0, expected.length() - 2);
+            }
+
+            return compareStrings(actual, expected);
         }
     }
 
@@ -110,7 +103,6 @@ public class ComparisonNode implements Node {
             case "<=" -> actualValue <= expectedValue;
             default -> null;
         };
-
         return Optional.ofNullable(result).orElseThrow(InvalidOperatorException::new);
     }
 
@@ -120,7 +112,6 @@ public class ComparisonNode implements Node {
             case "!=" -> !actualValue.equals(expectedValue);
             default -> null;
         };
-
         return Optional.ofNullable(result).orElseThrow(InvalidOperatorException::new);
     }
 
@@ -131,7 +122,10 @@ public class ComparisonNode implements Node {
 
     @Override
     public String toString() {
-        String valStr = valueType == TokenType.NUMBER ? expectedValue : "'" + expectedValue + "'";
+        TokenType type = FIELD_TYPES.get(field);
+        String valStr = (type == TokenType.STRING && !expectedValue.startsWith("'"))
+                ? "'" + expectedValue + "'"
+                : expectedValue;
 
         return field + " " + operator + " " + valStr;
     }

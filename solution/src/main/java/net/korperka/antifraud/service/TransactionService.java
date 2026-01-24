@@ -199,12 +199,6 @@ public class TransactionService {
 
             if (matched) fraud = true;
 
-            if (!matched) {
-                System.out.println("DEBUG RULE FAIL: " + rule.getDslExpression());
-            } else {
-                System.out.println("DEBUG RULE MATCH: " + rule.getDslExpression());
-            }
-
             FraudRuleEvaluationResult result = new FraudRuleEvaluationResult(rule.getId(), rule.getName(), rule.getPriority(), rule.isEnabled(), matched, rule.getDescription());
             results.add(result);
         }
