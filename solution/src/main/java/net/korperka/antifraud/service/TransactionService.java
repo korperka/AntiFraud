@@ -21,6 +21,8 @@ import net.korperka.antifraud.repository.FraudRuleRepository;
 import net.korperka.antifraud.repository.TransactionRepository;
 import net.korperka.antifraud.repository.UserRepository;
 import net.korperka.antifraud.specification.TransactionSpecification;
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +30,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.AccessDeniedException;
 import java.time.Instant;
@@ -45,6 +49,9 @@ public class TransactionService {
     private final UserMapper userMapper;
     private final Validator validator;
     private final ObjectMapper objectMapper;
+    @Autowired
+    @Lazy
+    private TransactionService self;
 
     public TransactionBatchResult createBatch(TransactionBatchCreateRequest request) {
         List<TransactionBatchResultItem> results = new ArrayList<>();
@@ -74,7 +81,7 @@ public class TransactionService {
                     results.add(TransactionBatchResultItem.builder().index(i).error(error).build());
                     continue;
                 }
-                TransactionWrappedResponse response = createTransaction(itemRequest);
+                TransactionWrappedResponse response = self.createTransaction(itemRequest);
 
                 results.add(TransactionBatchResultItem.builder()
                         .index(i)
@@ -154,6 +161,7 @@ public class TransactionService {
         );
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public TransactionWrappedResponse createTransaction(TransactionCreateRequest request) {
         Transaction transaction = transactionMapper.toEntity(request);
 
