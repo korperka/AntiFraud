@@ -10,6 +10,8 @@ import net.korperka.antifraud.projection.TimeSeriesProjection;
 import net.korperka.antifraud.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -111,8 +113,8 @@ public class StatService {
         double declineRate = 0.0;
 
         if (volume > 0) {
-            approvalRate = (double) stats.getApprovedCount() / volume;
-            declineRate = (double) stats.getDeclinedCount() / volume;
+            approvalRate = new BigDecimal(1 - (double) stats.getApprovedCount() / volume).setScale(2, RoundingMode.HALF_UP).doubleValue();
+            declineRate = new BigDecimal(1 - (double) stats.getDeclinedCount() / volume).setScale(2, RoundingMode.HALF_UP).doubleValue();
         }
 
         List<MerchantRiskRow> topMerchants = transactionRepository.getTopRiskMerchants(from, to);
