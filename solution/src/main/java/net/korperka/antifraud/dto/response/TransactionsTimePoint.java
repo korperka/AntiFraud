@@ -19,7 +19,7 @@ public class TransactionsTimePoint {
         this.bucketStart = bucketStart;
         this.txCount = txCount;
         this.gmv = gmv;
-        this.approvalRate = txCount == 0 ? 0 : (double) approved / txCount;
-        this.declineRate = txCount == 0 ? 0 : (double) declined / txCount;
+        this.approvalRate = txCount == 0 ? 0 : 1 - (double) approved / txCount;
+        this.declineRate = txCount == 0 ? 0 : 1 - (double) declined / txCount;
     }
 }
