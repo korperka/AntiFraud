@@ -10,9 +10,10 @@ import java.util.Map;
 import java.util.Optional;
 
 public class ComparisonNode implements Node {
-    private String field;
-    private String operator;
-    private String expectedValue;
+    private final String field;
+    private final String operator;
+    private final String expectedValue;
+    private final TokenType valueType;
 
     private static final Map<String, TokenType> FIELD_TYPES = Map.ofEntries(
             Map.entry("amount", TokenType.NUMBER),
@@ -54,6 +55,7 @@ public class ComparisonNode implements Node {
         this.field = field;
         this.operator = operator;
         this.expectedValue = expectedValue;
+        this.valueType = valueType;
     }
 
     @Override
@@ -115,8 +117,7 @@ public class ComparisonNode implements Node {
 
     @Override
     public String toString() {
-        boolean isNumber = expectedValue.matches("-?\\d+(\\.\\d+)?");
-        String valStr = isNumber ? expectedValue : "'" + expectedValue + "'";
+        String valStr = valueType == TokenType.NUMBER ? expectedValue : "'" + expectedValue + "'";
 
         return field + " " + operator + " " + valStr;
     }
