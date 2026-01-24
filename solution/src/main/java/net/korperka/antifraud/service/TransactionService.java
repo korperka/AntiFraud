@@ -217,6 +217,8 @@ public class TransactionService {
         transaction.setCreatedAt(LocalDateTime.now());
         transaction.setTimestamp(request.getTimestamp());
 
+        System.out.println("DEBUG SAVING: Amount=" + transaction.getAmount() + ", Status=" + transaction.getStatus());
+
         return transactionMapper.toDto(transactionRepository.saveAndFlush(transaction));
     }
 }
