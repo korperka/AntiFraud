@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.korperka.antifraud.dsl.DslError;
 import net.korperka.antifraud.dsl.node.Node;
 import net.korperka.antifraud.dsl.parser.DslParser;
+import net.korperka.antifraud.dto.request.DslValidateRequest;
 import net.korperka.antifraud.dto.request.FraudRuleDTO;
 import net.korperka.antifraud.dto.response.DslValidateResponse;
 import net.korperka.antifraud.dto.response.FraudRuleResponse;
@@ -26,7 +27,8 @@ public class FraudRuleService {
     private final FraudRuleRepository rulesRepository;
     private final FraudRuleMapper rulesMapper;
 
-    public DslValidateResponse validateExpression(String dslExpression) {
+    public DslValidateResponse validateExpression(DslValidateRequest request) {
+        String dslExpression = request.getDslExpression();
         List<DslError> errors = new ArrayList<>();
         boolean valid = true;
 

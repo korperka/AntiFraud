@@ -3,6 +3,7 @@ package net.korperka.antifraud.controller;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import net.korperka.antifraud.dto.request.DslValidateRequest;
 import net.korperka.antifraud.dto.request.FraudRuleDTO;
 import net.korperka.antifraud.dto.response.DslValidateResponse;
 import net.korperka.antifraud.dto.response.FraudRuleResponse;
@@ -23,8 +24,8 @@ public class FraudRuleController {
 
     @PostMapping("/validate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<DslValidateResponse> validateExpression(@Valid @RequestBody String dslExpression) {
-        return ResponseEntity.ok(ruleService.validateExpression(dslExpression));
+    public ResponseEntity<DslValidateResponse> validateExpression(@Valid @RequestBody DslValidateRequest request) {
+        return ResponseEntity.ok(ruleService.validateExpression(request));
     }
 
     @DeleteMapping("/{id}")
