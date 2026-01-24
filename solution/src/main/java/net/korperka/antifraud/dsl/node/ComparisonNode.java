@@ -45,12 +45,12 @@ public class ComparisonNode implements Node {
 
         TokenType fieldType = FIELD_TYPES.get(field);
 
-        if (fieldType == TokenType.NUMBER && valueType == TokenType.STRING) {
-            throw new InvalidOperatorException();
-        }
-        if (fieldType == TokenType.STRING && valueType == TokenType.NUMBER) {
-            throw new InvalidOperatorException();
-        }
+//        if (fieldType == TokenType.NUMBER && valueType == TokenType.STRING) {
+//            throw new InvalidOperatorException();
+//        }
+//        if (fieldType == TokenType.STRING && valueType == TokenType.NUMBER) {
+//            throw new InvalidOperatorException();
+//        }
 
         if (fieldType == TokenType.STRING) {
             if (!operator.equals("=") && !operator.equals("!=")) {
