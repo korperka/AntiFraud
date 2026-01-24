@@ -30,12 +30,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.nio.file.AccessDeniedException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -53,11 +53,11 @@ public class TransactionService {
     private final ObjectMapper objectMapper;
     private final PlatformTransactionManager transactionManager;
 
-    public TransactionWrappedResponse getTransaction(UUID id, UUID userId) throws AccessDeniedException {
+    public TransactionWrappedResponse getTransaction(UUID id, UUID userId) {
         User user = userRepository.findById(userId).orElseThrow(InvalidCredentialsException::new);
         TransactionWrappedResponse response = transactionMapper.toDto(transactionRepository.findById(id).orElseThrow(() -> new NotFoundException(id)));
 
-        if(user.getRole() != Role.ADMIN && response.getTransaction().getUserId() != userId) throw new org.springframework.security.access.AccessDeniedException("Forbidden");
+        if(user.getRole() != Role.ADMIN && response.getTransaction().getUserId() != userId) throw new AccessDeniedException("Forbidden");
 
         return response;
     }
