@@ -45,14 +45,14 @@ public class FraudRuleService {
     }
 
     public FraudRuleResponse disableRule(UUID ruleId) {
-        FraudRule rule = rulesRepository.findById(ruleId).orElseThrow(NotFoundException::new);
+        FraudRule rule = rulesRepository.findById(ruleId).orElseThrow(() -> new NotFoundException(ruleId));
         rule.setEnabled(false);
 
         return rulesMapper.toDto(rulesRepository.save(rule));
     }
 
     public FraudRuleResponse updateRule(FraudRuleDTO sourceDTO, UUID targetId) {
-        FraudRule target = rulesRepository.findById(targetId).orElseThrow(NotFoundException::new);
+        FraudRule target = rulesRepository.findById(targetId).orElseThrow(() -> new NotFoundException(targetId));
         FraudRule source = rulesMapper.toEntity(sourceDTO);
 
         if(rulesRepository.existsByName(source.getName())) throw new FraudRuleAlreadyExistsException();
@@ -68,7 +68,7 @@ public class FraudRuleService {
     }
 
     public FraudRuleResponse getRuleById(UUID id) {
-        return rulesMapper.toDto(rulesRepository.findById(id).orElseThrow(NotFoundException::new));
+        return rulesMapper.toDto(rulesRepository.findById(id).orElseThrow(() -> new NotFoundException(id)));
     }
 
     public List<FraudRuleResponse> getAllRules() {

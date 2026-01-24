@@ -18,6 +18,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -27,6 +29,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TransactionController {
     private final TransactionService transactionService;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TransactionWrappedResponse> getTransactionById(@PathVariable UUID id, Principal principal) throws AccessDeniedException {
+        String userIdString = principal.getName();
+        UUID userId = UUID.fromString(userIdString);
+
+        return ResponseEntity.ok(transactionService.getTransaction(id, userId));
+    }
 
     @PostMapping("/batch")
     @PreAuthorize("hasRole('ADMIN')")

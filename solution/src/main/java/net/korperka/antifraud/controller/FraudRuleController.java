@@ -37,7 +37,7 @@ public class FraudRuleController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<FraudRuleResponse> updateFraudRule(@Valid @RequestBody FraudRuleDTO source, UUID targetId) {
+    public ResponseEntity<FraudRuleResponse> updateFraudRule(@Valid @RequestBody FraudRuleDTO source, @PathVariable UUID targetId) {
         return ResponseEntity.ok(ruleService.updateRule(source, targetId));
     }
 

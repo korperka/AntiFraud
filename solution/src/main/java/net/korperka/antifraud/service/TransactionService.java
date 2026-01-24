@@ -12,8 +12,11 @@ import net.korperka.antifraud.dto.request.TransactionCreateRequest;
 import net.korperka.antifraud.dto.response.*;
 import net.korperka.antifraud.entity.FraudRule;
 import net.korperka.antifraud.entity.Transaction;
+import net.korperka.antifraud.entity.User;
+import net.korperka.antifraud.enums.Role;
 import net.korperka.antifraud.enums.TransactionStatus;
 import net.korperka.antifraud.exception.DateFormatException;
+import net.korperka.antifraud.exception.InvalidCredentialsException;
 import net.korperka.antifraud.exception.NotFoundException;
 import net.korperka.antifraud.mapper.TransactionMapper;
 import net.korperka.antifraud.mapper.UserMapper;
@@ -49,6 +52,15 @@ public class TransactionService {
     private final Validator validator;
     private final ObjectMapper objectMapper;
     private final PlatformTransactionManager transactionManager;
+
+    public TransactionWrappedResponse getTransaction(UUID id, UUID userId) throws AccessDeniedException {
+        User user = userRepository.findById(userId).orElseThrow(InvalidCredentialsException::new);
+        TransactionWrappedResponse response = transactionMapper.toDto(transactionRepository.findById(id).orElseThrow(() -> new NotFoundException(id)));
+
+        if(user.getRole() != Role.ADMIN && response.getTransaction().getUserId() != userId) throw new org.springframework.security.access.AccessDeniedException("Forbidden");
+
+        return response;
+    }
 
     public TransactionBatchResult createBatch(TransactionBatchCreateRequest request) {
         List<TransactionBatchResultItem> results = new ArrayList<>();
@@ -167,7 +179,7 @@ public class TransactionService {
         Transaction transaction = transactionMapper.toEntity(request);
 
         UUID userId = request.getUserId();
-        if (!userRepository.existsById(userId)) throw new NotFoundException();
+        if (!userRepository.existsById(userId)) throw new NotFoundException(userId);
 
         List<FraudRuleEvaluationResult> results = new ArrayList<>();
         List<FraudRule> rules = rulesRepository.findByEnabledTrue();
@@ -175,7 +187,7 @@ public class TransactionService {
 
         RuleEvaluationContext context = RuleEvaluationContext.builder()
                 .transaction(request)
-                .user(userMapper.toDto(userRepository.findById(userId).orElseThrow(NotFoundException::new)))
+                .user(userMapper.toDto(userRepository.findById(userId).orElseThrow(() -> new NotFoundException(userId))))
                 .build();
 
         boolean fraud = false;

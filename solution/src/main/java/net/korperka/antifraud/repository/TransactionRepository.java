@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -36,5 +37,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
             "ORDER BY (CAST(SUM(CASE WHEN t.status = 'DECLINED' THEN 1 ELSE 0 END) AS double) / COUNT(t)) DESC, COUNT(t) DESC " +
             "LIMIT 10")
     List<MerchantRiskRow> getTopRiskMerchants(LocalDateTime from, LocalDateTime to);
-    boolean findById(UUID id);
+    Optional<Transaction> findById(UUID id);
 }

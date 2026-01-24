@@ -38,15 +38,15 @@ public class UserService {
     }
 
     public void deactivateUser(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(NotFoundException::new);
+        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException(id));
         user.setActive(false);
 
         userRepository.save(user);
     }
 
     public UserResponse getUserById(UUID sourceId, UUID targetId) {
-        User source = userRepository.findById(sourceId).orElseThrow(NotFoundException::new);
-        User target = userRepository.findById(targetId).orElseThrow(NotFoundException::new);
+        User source = userRepository.findById(sourceId).orElseThrow(() -> new NotFoundException(sourceId));
+        User target = userRepository.findById(targetId).orElseThrow(() -> new NotFoundException(targetId));
 
         if(source.getRole() != Role.ADMIN && !sourceId.equals(targetId)) throw new AccessDeniedException("Forbidden");
 
@@ -54,8 +54,8 @@ public class UserService {
     }
 
     public UserResponse updateUser(UUID sourceId, UUID targetId, UserUpdateRequest request) {
-        User target = userRepository.findById(targetId).orElseThrow(NotFoundException::new);
-        User source = userRepository.findById(sourceId).orElseThrow(NotFoundException::new);
+        User target = userRepository.findById(targetId).orElseThrow(() -> new NotFoundException(targetId));
+        User source = userRepository.findById(sourceId).orElseThrow(() -> new NotFoundException(sourceId));
 
         if(source.getRole() != Role.ADMIN && !sourceId.equals(targetId)) throw new AccessDeniedException("Forbidden");
 

@@ -7,13 +7,13 @@ import net.korperka.antifraud.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.nio.file.AccessDeniedException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -41,10 +41,11 @@ public class GlobalExceptionHandler {
 
         ApiErrorResponse response = ApiErrorResponse.builder()
                 .code("NOT_FOUND")
-                .message("Пользователь не найден")
+                .message("Ресурс не найден")
                 .traceId(UUID.randomUUID().toString())
                 .timestamp(Instant.now())
                 .path(request.getRequestURI())
+                .details(Map.of("userId", ex.getUserId()))
                 .build();
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);

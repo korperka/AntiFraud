@@ -70,7 +70,7 @@ public class UserController {
         UUID userId = UUID.fromString(userIdString);
         UserResponse user = userService.getUserById(userId);
 
-        if(user == null) throw new NotFoundException();
+        if(user == null) throw new NotFoundException(userId);
 
         return ResponseEntity.ok(user);
     }
