@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Repository
 public interface FraudRuleRepository extends JpaRepository<FraudRule, Long> {
-    boolean existsByName(String name);
+    boolean existsByNameAndIdNot(String name, UUID id);
     Optional<FraudRule> findById(UUID id);
     List<FraudRule> findByEnabledTrue();
 }
