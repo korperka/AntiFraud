@@ -23,6 +23,8 @@ public class RuleEvaluationContext {
                 case "merchantId": return transaction.getMerchantId();
                 case "ipAddress": return transaction.getIpAddress();
                 case "deviceId": return transaction.getDeviceId();
+                case "merchantCategoryCode": return transaction.getMerchantCategoryCode();
+                case "channel": return transaction.getChannel() != null ? transaction.getChannel().name() : null;
             }
             if(transaction.getMetadata() != null && !transaction.getMetadata().isEmpty() && transaction.getMetadata().containsKey(fieldName)) return transaction.getMetadata().get(fieldName);
         }
