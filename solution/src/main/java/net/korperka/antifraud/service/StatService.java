@@ -1,11 +1,9 @@
 package net.korperka.antifraud.service;
 
 import lombok.RequiredArgsConstructor;
-import net.korperka.antifraud.dto.response.MerchantRiskRow;
-import net.korperka.antifraud.dto.response.StatsOverviewResponse;
-import net.korperka.antifraud.dto.response.TransactionsTimePoint;
-import net.korperka.antifraud.dto.response.TransactionsTimeSeries;
+import net.korperka.antifraud.dto.response.*;
 import net.korperka.antifraud.exception.DateFormatException;
+import net.korperka.antifraud.projection.RuleStatsProjection;
 import net.korperka.antifraud.projection.StatsProjection;
 import net.korperka.antifraud.projection.TimeSeriesProjection;
 import net.korperka.antifraud.repository.TransactionRepository;
@@ -14,11 +12,34 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class StatService {
     private final TransactionRepository transactionRepository;
+
+    public RuleMatchStats getRuleStats(LocalDateTime from, LocalDateTime to, int limit) {
+        if (to == null) to = LocalDateTime.now();
+        if (from == null) from = to.minusDays(7);
+        if(from.isAfter(to)) throw new DateFormatException();
+        if (ChronoUnit.DAYS.between(from, to) > 90) throw new DateFormatException();
+
+        List<RuleStatsProjection> stats = transactionRepository.getRuleStats(from, to, limit);
+
+        List<RuleMatchRow> items = stats.stream()
+                .map(s -> new RuleMatchRow(
+                        UUID.fromString(s.getRuleId()),
+                        s.getRuleName(),
+                        s.getMatches(),
+                        s.getUniqueUsers(),
+                        s.getUniqueMerchants(),
+                        s.getShareOfDeclines()
+                ))
+                .toList();
+
+        return new RuleMatchStats(items);
+    }
 
     public TransactionsTimeSeries getTimeSeries(
             LocalDateTime from,
@@ -30,6 +51,8 @@ public class StatService {
         if (to == null) to = LocalDateTime.now();
         if (from == null) from = to.minusDays(7);
         if (groupBy == null) groupBy = "day";
+        if(from.isAfter(to)) throw new DateFormatException();
+        if (ChronoUnit.DAYS.between(from, to) > 90) throw new DateFormatException();
 
         List<TimeSeriesProjection> rows = transactionRepository.getTimeSeries(from, to, groupBy, channel);
 

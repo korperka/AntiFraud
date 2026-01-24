@@ -3,6 +3,7 @@ package net.korperka.antifraud.repository;
 import net.korperka.antifraud.dto.response.MerchantRiskRow;
 import net.korperka.antifraud.dto.response.TransactionsTimeSeries;
 import net.korperka.antifraud.entity.Transaction;
+import net.korperka.antifraud.projection.RuleStatsProjection;
 import net.korperka.antifraud.projection.StatsProjection;
 import net.korperka.antifraud.projection.TimeSeriesProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,6 +19,43 @@ import java.util.UUID;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long>, JpaSpecificationExecutor<Transaction> {
+    @Query(value = """
+    WITH exploded_rules AS (
+        SELECT 
+            t.user_id, 
+            t.merchant_id, 
+            t.status,
+            r->>'ruleId' as rule_id,
+            r->>'ruleName' as rule_name
+        FROM transactions t,
+             jsonb_array_elements(t.rule_results) as r
+        WHERE t.timestamp >= :from AND t.timestamp < :to
+          AND (r->>'matched')::boolean = true
+    ),
+    total_declined AS (
+        SELECT COUNT(*) as cnt FROM transactions t
+        WHERE t.timestamp >= :from AND t.timestamp < :to 
+          AND t.status = 'DECLINED'
+    )
+    SELECT 
+        er.rule_id as ruleId,
+        er.rule_name as ruleName,
+        COUNT(*) as matches,
+        COUNT(DISTINCT er.user_id) as uniqueUsers,
+        COUNT(DISTINCT er.merchant_id) as uniqueMerchants,
+        -- shareOfDeclines = matches / total_declined
+        (CAST(COUNT(*) AS float) / NULLIF((SELECT cnt FROM total_declined), 0)) as shareOfDeclines
+    FROM exploded_rules er
+    GROUP BY er.rule_id, er.rule_name
+    ORDER BY matches DESC
+    LIMIT :limit
+    """, nativeQuery = true)
+    List<RuleStatsProjection> getRuleStats(
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to,
+            @Param("limit") int limit
+    );
+
     @Query(value = """
     SELECT 
         date_trunc(:groupBy, t.timestamp) as bucket,

@@ -3,6 +3,7 @@ package net.korperka.antifraud.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import net.korperka.antifraud.dto.response.RuleMatchStats;
 import net.korperka.antifraud.dto.response.StatsOverviewResponse;
 import net.korperka.antifraud.dto.response.TransactionsTimeSeries;
 import net.korperka.antifraud.enums.TransactionChannel;
@@ -24,7 +25,17 @@ import java.time.LocalDateTime;
 public class StatController {
     private final StatService statService;
 
-    @GetMapping("/transactions/timeseries")
+    @GetMapping("/rule/matches")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<RuleMatchStats> getMatchStats(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
+            @RequestParam(defaultValue = "20") int top
+    ) {
+        return ResponseEntity.ok(statService.getRuleStats(from, to, top));
+    }
+
+    @GetMapping("/timeseries")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TransactionsTimeSeries> getTimeSeries(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
