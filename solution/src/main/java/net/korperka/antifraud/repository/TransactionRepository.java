@@ -3,6 +3,7 @@ package net.korperka.antifraud.repository;
 import net.korperka.antifraud.dto.response.MerchantRiskRow;
 import net.korperka.antifraud.dto.response.TransactionsTimeSeries;
 import net.korperka.antifraud.entity.Transaction;
+import net.korperka.antifraud.projection.MerchantRiskRowProjection;
 import net.korperka.antifraud.projection.RuleStatsProjection;
 import net.korperka.antifraud.projection.StatsProjection;
 import net.korperka.antifraud.projection.TimeSeriesProjection;
@@ -19,6 +20,27 @@ import java.util.UUID;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long>, JpaSpecificationExecutor<Transaction> {
+    @Query(value = """
+    SELECT 
+        t.merchant_id as merchantId, 
+        MAX(t.merchant_category_code) as merchantCategoryCode, 
+        COUNT(*) as txCount, 
+        COALESCE(SUM(t.amount), 0) as gmv, 
+        (CAST(SUM(CASE WHEN t.status = 'DECLINED' THEN 1 ELSE 0 END) AS float) / NULLIF(COUNT(*), 0)) as declineRate 
+    FROM transactions t 
+    WHERE t.timestamp >= :from AND t.timestamp < :to 
+      AND (:mcc IS NULL OR t.merchant_category_code = :mcc)
+    GROUP BY t.merchant_id 
+    ORDER BY declineRate DESC, txCount DESC 
+    LIMIT :limit
+    """, nativeQuery = true)
+    List<MerchantRiskRowProjection> getMerchantRiskStats(
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to,
+            @Param("mcc") String mcc,
+            @Param("limit") int limit
+    );
+
     @Query(value = """
     WITH exploded_rules AS (
         SELECT 
