@@ -21,8 +21,6 @@ import net.korperka.antifraud.repository.FraudRuleRepository;
 import net.korperka.antifraud.repository.TransactionRepository;
 import net.korperka.antifraud.repository.UserRepository;
 import net.korperka.antifraud.specification.TransactionSpecification;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,8 +28,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.nio.file.AccessDeniedException;
 import java.time.Instant;
@@ -49,11 +48,13 @@ public class TransactionService {
     private final UserMapper userMapper;
     private final Validator validator;
     private final ObjectMapper objectMapper;
-//    @Lazy
-//    private final TransactionService self;
+    private final PlatformTransactionManager transactionManager;
 
     public TransactionBatchResult createBatch(TransactionBatchCreateRequest request) {
         List<TransactionBatchResultItem> results = new ArrayList<>();
+
+        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+        transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 
         for (int i = 0; i < request.getItems().size(); i++) {
             try {
@@ -80,15 +81,15 @@ public class TransactionService {
                     results.add(TransactionBatchResultItem.builder().index(i).error(error).build());
                     continue;
                 }
-                TransactionWrappedResponse response = createTransaction(itemRequest);
+
+                TransactionWrappedResponse response = transactionTemplate.execute(status -> createTransaction(itemRequest));
 
                 results.add(TransactionBatchResultItem.builder()
                         .index(i)
                         .decision(response)
                         .build());
 
-            }
-            catch (JsonProcessingException | IllegalArgumentException e) {
+            } catch (JsonProcessingException | IllegalArgumentException e) {
                 ApiErrorResponse error = ApiErrorResponse.builder()
                         .code("BAD_REQUEST")
                         .message(e.getMessage())
@@ -97,8 +98,7 @@ public class TransactionService {
                         .build();
 
                 results.add(TransactionBatchResultItem.builder().index(i).error(error).build());
-            }
-            catch (NotFoundException e) {
+            } catch (NotFoundException e) {
                 ApiErrorResponse error = ApiErrorResponse.builder()
                         .code("NOT_FOUND")
                         .message(e.getMessage())
@@ -106,6 +106,9 @@ public class TransactionService {
                         .traceId(UUID.randomUUID().toString())
                         .build();
 
+                results.add(TransactionBatchResultItem.builder().index(i).error(error).build());
+            } catch (Exception e) {
+                ApiErrorResponse error = mapExceptionToError(e);
                 results.add(TransactionBatchResultItem.builder().index(i).error(error).build());
             }
         }
@@ -141,8 +144,8 @@ public class TransactionService {
         if (to == null) to = LocalDateTime.now();
         if (from == null) from = to.minusDays(90);
         if (!isAdmin) filterUserId = currentUserId;
-        if(from.isAfter(to)) throw new DateFormatException();
-        if(ChronoUnit.DAYS.between(from, to) > 90) throw new DateFormatException();
+        if (from.isAfter(to)) throw new DateFormatException();
+        if (ChronoUnit.DAYS.between(from, to) > 90) throw new DateFormatException();
 
         Specification<Transaction> spec = TransactionSpecification.filter(filterUserId, status, fraud, from, to);
         Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp").descending());
@@ -160,7 +163,6 @@ public class TransactionService {
         );
     }
 
-//    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public TransactionWrappedResponse createTransaction(TransactionCreateRequest request) {
         Transaction transaction = transactionMapper.toEntity(request);
 
@@ -193,7 +195,7 @@ public class TransactionService {
         transaction.setStatus(fraud ? TransactionStatus.DECLINED : TransactionStatus.APPROVED);
         transaction.setRuleResults(results);
         transaction.setCreatedAt(LocalDateTime.now());
-        transaction.setTimestamp(LocalDateTime.now());
+        transaction.setTimestamp(request.getTimestamp());
 
         return transactionMapper.toDto(transactionRepository.save(transaction));
     }
