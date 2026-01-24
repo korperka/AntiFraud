@@ -4,6 +4,8 @@ package net.korperka.antifraud.controller;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import net.korperka.antifraud.dto.response.StatsOverviewResponse;
+import net.korperka.antifraud.dto.response.TransactionsTimeSeries;
+import net.korperka.antifraud.enums.TransactionChannel;
 import net.korperka.antifraud.service.StatService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +24,23 @@ import java.time.LocalDateTime;
 public class StatController {
     private final StatService statService;
 
+    @GetMapping("/transactions/timeseries")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<TransactionsTimeSeries> getTimeSeries(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
+            @RequestParam(defaultValue = "day") String groupBy,
+            @RequestParam(defaultValue = "UTC") String timezone,
+            @RequestParam(required = false) TransactionChannel channel
+    ) {
+        String channelStr = channel != null ? channel.name() : null;
+
+        return ResponseEntity.ok(statService.getTimeSeries(from, to, groupBy, timezone, channelStr));
+    }
+
     @GetMapping("/overview")
     @PreAuthorize("hasRole('ADMIN')")
-    private ResponseEntity<StatsOverviewResponse> getStatsOverview(
+    public ResponseEntity<StatsOverviewResponse> getStatsOverview(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to
     ) {
