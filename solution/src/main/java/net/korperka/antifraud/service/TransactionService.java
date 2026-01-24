@@ -49,8 +49,8 @@ public class TransactionService {
     private final UserMapper userMapper;
     private final Validator validator;
     private final ObjectMapper objectMapper;
-    @Lazy
-    private final TransactionService self;
+//    @Lazy
+//    private final TransactionService self;
 
     public TransactionBatchResult createBatch(TransactionBatchCreateRequest request) {
         List<TransactionBatchResultItem> results = new ArrayList<>();
@@ -80,7 +80,7 @@ public class TransactionService {
                     results.add(TransactionBatchResultItem.builder().index(i).error(error).build());
                     continue;
                 }
-                TransactionWrappedResponse response = self.createTransaction(itemRequest);
+                TransactionWrappedResponse response = createTransaction(itemRequest);
 
                 results.add(TransactionBatchResultItem.builder()
                         .index(i)
@@ -91,7 +91,7 @@ public class TransactionService {
             catch (JsonProcessingException | IllegalArgumentException e) {
                 ApiErrorResponse error = ApiErrorResponse.builder()
                         .code("BAD_REQUEST")
-                        .message(e.getMessage()) // Или getOriginalMessage если доступно
+                        .message(e.getMessage())
                         .timestamp(Instant.now())
                         .traceId(UUID.randomUUID().toString())
                         .build();
@@ -160,7 +160,7 @@ public class TransactionService {
         );
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+//    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public TransactionWrappedResponse createTransaction(TransactionCreateRequest request) {
         Transaction transaction = transactionMapper.toEntity(request);
 
