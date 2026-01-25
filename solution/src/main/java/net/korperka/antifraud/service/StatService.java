@@ -7,6 +7,7 @@ import net.korperka.antifraud.projection.MerchantRiskRowProjection;
 import net.korperka.antifraud.projection.RuleStatsProjection;
 import net.korperka.antifraud.projection.StatsProjection;
 import net.korperka.antifraud.projection.TimeSeriesProjection;
+import net.korperka.antifraud.repository.FraudRuleRepository;
 import net.korperka.antifraud.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class StatService {
     private final TransactionRepository transactionRepository;
+    private final FraudRuleRepository ruleRepository;
 
     public MerchantRiskStats getMerchantRiskStats(
             LocalDateTime from,
@@ -103,6 +105,9 @@ public class StatService {
         if (from == null) from = LocalDateTime.now().minusDays(30);
         if(from.isAfter(to)) throw new DateFormatException();
         if (ChronoUnit.DAYS.between(from, to) > 90) throw new DateFormatException();
+
+        System.out.println("DEBUG TRANSACTIONS " + transactionRepository.findAll());
+        System.out.println("DEBUG RULES " + ruleRepository.findAll());
 
         StatsProjection stats = transactionRepository.getGeneralStats(from, to);
 
