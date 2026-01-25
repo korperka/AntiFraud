@@ -87,6 +87,12 @@ public class FraudRuleService {
 
         FraudRule rule = rulesMapper.toEntity(request);
 
+        System.out.println("DEBUG CREATE RULE: " + request.getName() + ", Enabled=" + rule.isEnabled());
+
+        if (request.getEnabled() == null) {
+            rule.setEnabled(true);
+        }
+
         rule.setCreatedAt(LocalDateTime.now());
         rule.setUpdatedAt(LocalDateTime.now());
         rule.setDslExpression(DslParser.normalizeExpressionSafe(request.getDslExpression()));

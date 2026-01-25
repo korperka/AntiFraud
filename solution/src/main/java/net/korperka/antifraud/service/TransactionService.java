@@ -183,9 +183,9 @@ public class TransactionService {
 
         List<FraudRuleEvaluationResult> results = new ArrayList<>();
         List<FraudRule> rules = rulesRepository.findByEnabledTrue();
-        System.out.println("DEBUG: Loaded " + rules.size() + " active rules.");
-        for (FraudRule r : rules) {
-            System.out.println("DEBUG RULE: " + r.getDslExpression());
+        System.out.println("DEBUG: Loaded " + rules.size() + " active and " + rulesRepository.findAll() + "total rules.");
+        for (FraudRule r : rulesRepository.findAll()) {
+            System.out.println("DEBUG RULE: " + r.getDslExpression() + " | " + r.isEnabled());
         }
         rules.sort(Comparator.comparingInt(FraudRule::getPriority));
 
