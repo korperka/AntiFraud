@@ -85,9 +85,13 @@ public class ComparisonNode implements Node {
         if (actualIsNumber) {
             double actual = ((Number) fieldValue).doubleValue();
             double expected = Double.parseDouble(expectedValue);
+
             return compareNumbers(actual, expected);
         } else {
             String cleanExpected = expectedValue.replace("'", "");
+
+            System.out.println("DEBUG STRING COMPARE: '" + fieldValue + "' " + operator + " '" + expectedValue + "'");
+            System.out.println("RESULT " + compareStrings(fieldValue.toString(), cleanExpected));
 
             return compareStrings(fieldValue.toString(), cleanExpected);
         }
