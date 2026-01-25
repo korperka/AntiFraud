@@ -113,8 +113,8 @@ public class StatService {
         double declineRate = 0.0;
 
         if (volume > 0) {
-            approvalRate = new BigDecimal(1 - (double) stats.getApprovedCount() / volume).setScale(2, RoundingMode.HALF_UP).doubleValue();
-            declineRate = new BigDecimal(1 - (double) stats.getDeclinedCount() / volume).setScale(2, RoundingMode.HALF_UP).doubleValue();
+            approvalRate = new BigDecimal((double) stats.getApprovedCount() / volume).setScale(2, RoundingMode.HALF_UP).doubleValue();
+            declineRate = new BigDecimal((double) stats.getDeclinedCount() / volume).setScale(2, RoundingMode.HALF_UP).doubleValue();
         }
 
         List<MerchantRiskRow> topMerchants = transactionRepository.getTopRiskMerchants(from, to);

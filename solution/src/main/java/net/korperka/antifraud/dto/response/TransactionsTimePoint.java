@@ -21,7 +21,7 @@ public class TransactionsTimePoint {
         this.bucketStart = bucketStart;
         this.txCount = txCount;
         this.gmv = gmv;
-        this.approvalRate = BigDecimal.valueOf(txCount == 0 ? 0 : 1 - (double) approved / txCount).setScale(2, RoundingMode.HALF_UP).doubleValue();
-        this.declineRate = BigDecimal.valueOf(txCount == 0 ? 0 : 1 - (double) declined / txCount).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        this.approvalRate = BigDecimal.valueOf(txCount == 0 ? 0 : (double) approved / txCount).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        this.declineRate = BigDecimal.valueOf(txCount == 0 ? 0 : (double) declined / txCount).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 }
