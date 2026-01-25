@@ -62,8 +62,13 @@ public class FraudRuleService {
         target.setName(source.getName());
         target.setDescription(source.getDescription());
         target.setDslExpression(DslParser.normalizeExpressionSafe(source.getDslExpression()));
-        target.setEnabled(source.isEnabled());
-        target.setPriority(source.getPriority());
+        if (sourceDTO.getEnabled() != null) {
+            target.setEnabled(sourceDTO.getEnabled());
+        }
+
+        if (sourceDTO.getPriority() != null) {
+            target.setPriority(sourceDTO.getPriority());
+        }
         target.setUpdatedAt(LocalDateTime.now());
 
         return rulesMapper.toDto(rulesRepository.save(target));
