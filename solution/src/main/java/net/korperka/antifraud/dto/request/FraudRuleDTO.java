@@ -15,7 +15,7 @@ public class FraudRuleDTO {
     @NotBlank @Size(min = 3, max = 2000)
     private String dslExpression;
 
-    private Boolean enabled = true;
+    private boolean enabled = true;
     @NotNull @Min(1)
     private Integer priority;
 }

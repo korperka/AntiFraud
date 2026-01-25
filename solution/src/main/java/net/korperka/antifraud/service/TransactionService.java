@@ -183,10 +183,6 @@ public class TransactionService {
 
         List<FraudRuleEvaluationResult> results = new ArrayList<>();
         List<FraudRule> rules = rulesRepository.findByEnabledTrue();
-        System.out.println("DEBUG: Loaded " + rules.size() + " active and " + rulesRepository.findAll() + "total rules.");
-        for (FraudRule r : rulesRepository.findAll()) {
-            System.out.println("DEBUG RULE: " + r.getDslExpression() + " | " + r.isEnabled());
-        }
         rules.sort(Comparator.comparingInt(FraudRule::getPriority));
 
         RuleEvaluationContext context = RuleEvaluationContext.builder()
@@ -207,17 +203,11 @@ public class TransactionService {
             results.add(result);
         }
 
-        if (!fraud) {
-            System.out.println("DEBUG: Transaction APPROVED. MCC=" + transaction.getMerchantCategoryCode() + ", Merchant=" + transaction.getMerchantId());
-        }
-
         transaction.setFraud(fraud);
         transaction.setStatus(fraud ? TransactionStatus.DECLINED : TransactionStatus.APPROVED);
         transaction.setRuleResults(results);
         transaction.setCreatedAt(LocalDateTime.now());
         transaction.setTimestamp(request.getTimestamp());
-
-        System.out.println("DEBUG SAVING: Amount=" + transaction.getAmount() + ", Status=" + transaction.getStatus());
 
         return transactionMapper.toDto(transactionRepository.saveAndFlush(transaction));
     }

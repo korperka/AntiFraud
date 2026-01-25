@@ -62,13 +62,8 @@ public class FraudRuleService {
         target.setName(source.getName());
         target.setDescription(source.getDescription());
         target.setDslExpression(DslParser.normalizeExpressionSafe(source.getDslExpression()));
-        if (sourceDTO.getEnabled() != null) {
-            target.setEnabled(sourceDTO.getEnabled());
-        }
-
-        if (sourceDTO.getPriority() != null) {
-            target.setPriority(sourceDTO.getPriority());
-        }
+        target.setEnabled(source.isEnabled());
+        target.setPriority(source.getPriority());
         target.setUpdatedAt(LocalDateTime.now());
 
         return rulesMapper.toDto(rulesRepository.save(target));
@@ -86,12 +81,6 @@ public class FraudRuleService {
         if(rulesRepository.existsByName(request.getName())) throw new FraudRuleAlreadyExistsException();
 
         FraudRule rule = rulesMapper.toEntity(request);
-
-        System.out.println("DEBUG CREATE RULE: " + request.getName() + ", Enabled=" + rule.isEnabled());
-
-        if (request.getEnabled() == null) {
-            rule.setEnabled(true);
-        }
 
         rule.setCreatedAt(LocalDateTime.now());
         rule.setUpdatedAt(LocalDateTime.now());

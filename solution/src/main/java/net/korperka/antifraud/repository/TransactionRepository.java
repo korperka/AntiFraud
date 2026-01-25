@@ -3,10 +3,7 @@ package net.korperka.antifraud.repository;
 import net.korperka.antifraud.dto.response.MerchantRiskRow;
 import net.korperka.antifraud.dto.response.TransactionsTimeSeries;
 import net.korperka.antifraud.entity.Transaction;
-import net.korperka.antifraud.projection.MerchantRiskRowProjection;
-import net.korperka.antifraud.projection.RuleStatsProjection;
-import net.korperka.antifraud.projection.StatsProjection;
-import net.korperka.antifraud.projection.TimeSeriesProjection;
+import net.korperka.antifraud.projection.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -20,6 +17,26 @@ import java.util.UUID;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long>, JpaSpecificationExecutor<Transaction> {
+    @Query(value = """
+        SELECT
+            COUNT(*) FILTER (WHERE t.timestamp >= :since24h) as txCount24h,
+            COALESCE(SUM(t.amount) FILTER (WHERE t.timestamp >= :since24h), 0) as gmv24h,
+            COUNT(DISTINCT t.device_id) FILTER (WHERE t.timestamp >= :since24h) as distinctDevices24h,
+            COUNT(DISTINCT t.ip_address) FILTER (WHERE t.timestamp >= :since24h) as distinctIps24h,
+            COUNT(DISTINCT t.city) FILTER (WHERE t.timestamp >= :since24h) as distinctCities24h,
+            COUNT(*) FILTER (WHERE t.timestamp >= :since30d) as txCount30d,
+            COUNT(*) FILTER (WHERE t.timestamp >= :since30d AND t.status = 'DECLINED') as declinedCount30d,
+            
+            MAX(t.timestamp) as lastSeenAt
+        FROM transactions t
+        WHERE t.user_id = :userId
+    """, nativeQuery = true)
+    UserRiskStatsProjection getUserRiskStats(
+            @Param("userId") UUID userId,
+            @Param("since24h") LocalDateTime since24h,
+            @Param("since30d") LocalDateTime since30d
+    );
+
     @Query(value = """
     SELECT 
         t.merchant_id as merchantId, 

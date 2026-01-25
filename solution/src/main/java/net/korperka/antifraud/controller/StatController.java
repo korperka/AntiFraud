@@ -3,21 +3,17 @@ package net.korperka.antifraud.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import net.korperka.antifraud.dto.response.MerchantRiskStats;
-import net.korperka.antifraud.dto.response.RuleMatchStats;
-import net.korperka.antifraud.dto.response.StatsOverviewResponse;
-import net.korperka.antifraud.dto.response.TransactionsTimeSeries;
+import net.korperka.antifraud.dto.response.*;
 import net.korperka.antifraud.enums.TransactionChannel;
 import net.korperka.antifraud.service.StatService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/stats")
@@ -25,6 +21,14 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class StatController {
     private final StatService statService;
+
+    @GetMapping("/users/{id}/risk-profile")
+    public ResponseEntity<UserRiskProfile> getUserRiskProfile(@PathVariable UUID id, Principal principal) {
+        String userIdString = principal.getName();
+        UUID sourceId = UUID.fromString(userIdString);
+
+        return ResponseEntity.ok(statService.getUserRiskProfile(sourceId, id));
+    }
 
     @GetMapping("/merchants/risk")
     @PreAuthorize("hasRole('ADMIN')")
