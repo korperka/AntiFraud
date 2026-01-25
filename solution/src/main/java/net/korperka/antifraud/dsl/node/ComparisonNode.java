@@ -67,18 +67,15 @@ public class ComparisonNode implements Node {
     @Override
     public boolean evaluate(RuleEvaluationContext context) {
         Object fieldValue = context.getFieldValue(field);
-        if(fieldValue == null) return false;
+        if (fieldValue == null) return false;
 
-        boolean expectedIsString = expectedValue.startsWith("'");
-        boolean expectedIsNumber = !expectedIsString;
-
+        boolean expectedIsNumber = (valueType == TokenType.NUMBER);
         boolean actualIsNumber = fieldValue instanceof Number;
-        boolean actualIsString = fieldValue instanceof String;
 
-        if (actualIsNumber && expectedIsString) {
+        if (actualIsNumber && !expectedIsNumber) {
             throw new InvalidOperatorException();
         }
-        if (actualIsString && expectedIsNumber) {
+        if (!actualIsNumber && expectedIsNumber) {
             throw new InvalidOperatorException();
         }
 
@@ -87,14 +84,7 @@ public class ComparisonNode implements Node {
             double expected = Double.parseDouble(expectedValue);
 
             return compareNumbers(actual, expected);
-        } else {
-            String cleanExpected = expectedValue.replace("'", "");
-
-            System.out.println("DEBUG STRING COMPARE: '" + fieldValue + "' " + operator + " '" + expectedValue + "'");
-            System.out.println("RESULT " + compareStrings(fieldValue.toString(), cleanExpected));
-
-            return compareStrings(fieldValue.toString(), cleanExpected);
-        }
+        } else return compareStrings(fieldValue.toString(), expectedValue);
     }
 
     private boolean compareNumbers(double actualValue, double expectedValue) {
