@@ -1,7 +1,7 @@
 package net.korperka.antifraud.dsl.parser;
 
-import net.korperka.antifraud.dsl.node.*;
-import static net.korperka.antifraud.dsl.node.LogicalNodes.*;
+import net.korperka.antifraud.dsl.node.ComparisonNode;
+import net.korperka.antifraud.dsl.node.Node;
 import net.korperka.antifraud.dsl.token.Token;
 import net.korperka.antifraud.dsl.token.TokenType;
 import net.korperka.antifraud.dsl.token.Tokenizer;
@@ -9,6 +9,8 @@ import net.korperka.antifraud.exception.DslParseException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+
+import static net.korperka.antifraud.dsl.node.LogicalNodes.*;
 
 public class DslParser {
     private final List<Token> tokens;

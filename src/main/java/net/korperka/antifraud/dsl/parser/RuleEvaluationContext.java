@@ -1,13 +1,9 @@
 package net.korperka.antifraud.dsl.parser;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import net.korperka.antifraud.dto.request.TransactionCreateRequest;
 import net.korperka.antifraud.dto.response.UserResponse;
-import net.korperka.antifraud.exception.InvalidFieldException;
-
-import java.util.Optional;
 
 @Data
 @Builder

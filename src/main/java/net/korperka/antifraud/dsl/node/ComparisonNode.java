@@ -1,6 +1,5 @@
 package net.korperka.antifraud.dsl.node;
 
-import lombok.AllArgsConstructor;
 import net.korperka.antifraud.dsl.parser.RuleEvaluationContext;
 import net.korperka.antifraud.dsl.token.TokenType;
 import net.korperka.antifraud.exception.InvalidFieldException;

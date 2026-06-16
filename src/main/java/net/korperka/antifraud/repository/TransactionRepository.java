@@ -1,7 +1,6 @@
 package net.korperka.antifraud.repository;
 
 import net.korperka.antifraud.dto.response.MerchantRiskRow;
-import net.korperka.antifraud.dto.response.TransactionsTimeSeries;
 import net.korperka.antifraud.entity.Transaction;
 import net.korperka.antifraud.projection.*;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,5 +1,6 @@
 package net.korperka.antifraud.specification;
 
+import jakarta.persistence.criteria.Predicate;
 import net.korperka.antifraud.entity.Transaction;
 import net.korperka.antifraud.enums.TransactionStatus;
 import org.springframework.data.jpa.domain.Specification;
@@ -8,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import jakarta.persistence.criteria.Predicate;
 
 public class TransactionSpecification {
     public static Specification<Transaction> filter(UUID userId, TransactionStatus status, Boolean fraud, LocalDateTime from, LocalDateTime to) {

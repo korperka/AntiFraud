@@ -2,7 +2,6 @@ package net.korperka.antifraud.service;
 
 import lombok.RequiredArgsConstructor;
 import net.korperka.antifraud.dsl.DslError;
-import net.korperka.antifraud.dsl.node.Node;
 import net.korperka.antifraud.dsl.parser.DslParser;
 import net.korperka.antifraud.dto.request.DslValidateRequest;
 import net.korperka.antifraud.dto.request.FraudRuleDTO;

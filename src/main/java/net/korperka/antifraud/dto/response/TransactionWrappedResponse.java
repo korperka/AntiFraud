@@ -1,6 +1,5 @@
 package net.korperka.antifraud.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
